@@ -15,6 +15,3 @@ It reguires OpenDynamicsEngine. To install it and python bindings:
 8. python setup.py install
 
 ode-0.12.tar.gz can be downloaded from http://sourceforge.net/projects/opende/files/
-
-Information about paralel processing with SimPy:
-http://simpy.sourceforge.net/SimPy_Manual/Manuals/Interfacing/ParallelSimPy/SimPyPP.html

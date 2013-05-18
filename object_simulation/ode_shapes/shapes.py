@@ -1,6 +1,6 @@
 __author__ = 'tomasz'
 
-import ode
+import ode, random
 
 # world - ode world, space - ode space   
 def create_box(world, space, density, lx, ly, lz):
@@ -13,6 +13,7 @@ def create_box(world, space, density, lx, ly, lz):
 
     # Set parameters for drawing the body
     body.shape = "box"
+    body.color = (random.random(), random.random(), random.random())
     body.box_size = (lx, ly, lz)
 
     # Create a box geom for collision detection
@@ -32,6 +33,7 @@ def create_sphere(world, space, density, radius):
 
     # Set parameters for drawing the body
     body.shape = "sphere"
+    body.color = (random.random(), random.random(), random.random())
     body.sphere_size = (radius)
 
     # Create a box geom for collision detection
@@ -51,6 +53,7 @@ def create_cylinder(world, space, density, radius, height,axis):
 
     # Set parameters for drawing the body
     body.shape = "cylinder"
+    body.color = (random.random(), random.random(), random.random())
     body.cylinder_size = (radius,axis,height)
 
     # Create a box geom for collision detection

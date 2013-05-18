@@ -60,6 +60,7 @@ def draw_box(body):
     glMultMatrixd(rot)
     sx,sy,sz = body.box_size
     glScalef(sx, sy, sz)
+    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, body.color)
     glutSolidCube(1)
     glPopMatrix()
 
@@ -77,6 +78,7 @@ def draw_cylinder(body):
     glMultMatrixd(rot)
     r,axis,height = body.cylinder_size
     glScalef(height,2*r, 2*r)
+    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, body.color)
     glutSolidCylinder(r,height,32,32)
     glPopMatrix()
 
@@ -94,6 +96,7 @@ def draw_sphere(body):
     glMultMatrixd(rot)
     r = body.sphere_size
     glScalef(2*r,2*r, 2*r)
+    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, body.color)
     glutSolidSphere	(r,32,32)
     glPopMatrix()
 

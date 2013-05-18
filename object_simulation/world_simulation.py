@@ -1,5 +1,5 @@
 import ode
-import sys, os, random, time
+import sys, os, random, time, random
 from math import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -107,8 +107,7 @@ world.setCFM(1E-5)
 space = ode.Space()
 
 # plane for the objects
-floor = ode.GeomPlane(space, (0.1,1,0), 0)
-
+floor = ode.GeomPlane(space, (0,1,0), 0)
 
 # A list with ODE bodies
 bodies = []
@@ -149,9 +148,11 @@ def _drawfunc ():
 
 glutDisplayFunc (_drawfunc)
 
-set_sphere(0.05,0.4,0.35)
-set_box(0.4,0.4,1.35)
-set_cylinder(0.4,2.0,1.35)
+for i in range(50):
+    set_sphere(random.uniform(-10, 10), random.uniform(1, 10), random.uniform(-10, 10))
+    set_box(random.uniform(-10, 10),random.uniform(1, 10),random.uniform(-10, 10))
+    set_cylinder(random.uniform(-10, 10),random.uniform(1, 10),random.uniform(-10, 10))
+
 # idle callback
 def _idlefunc ():
     global counter, state, lasttime

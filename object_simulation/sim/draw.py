@@ -8,14 +8,14 @@ class Draw(object):
 	def __init__(self, sim):
 
 		self.sim = sim
-		self.initOpenGl()
+		self.init_openGl()
 
-		glutKeyboardFunc(self.keyCallback)
+		glutKeyboardFunc(self.key_callback)
 		glutDisplayFunc(self.draw)
 		glutIdleFunc(self.sim.idle)
 		glutMainLoop()
 
-	def initOpenGl(self):
+	def init_openGl(self):
 
 		glutInit([])
 		glutInitDisplayMode (GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE)
@@ -24,16 +24,16 @@ class Draw(object):
 		glutInitWindowSize(640, 480);
 		glutCreateWindow("Simulation window")
 
-	def keyCallback(self, c, x, y):
+	def key_callback(self, c, x, y):
 		sys.exit(0)
 
 	def draw(self):
 
 		self.render()
-		agents = self.sim.getAgents()
+		agents = self.sim.get_agents()
 
 		for agent in agents:
-			self.drawAgent(agent)
+			self.draw_agent(agent)
 
 		glutSwapBuffers()
 
@@ -50,7 +50,7 @@ class Draw(object):
 
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
-		gluPerspective(45,1.3333,0.2,20)
+		gluPerspective(90,1.3333,0.2,20)
 
 		glMatrixMode(GL_MODELVIEW)
 		glLoadIdentity()
@@ -62,12 +62,12 @@ class Draw(object):
 
 		gluLookAt(2.4, 3.6, 4.8, 0.5, 0.5, 0, 0, 1, 0)
 
-	def drawAgent(self, agent):
+	def draw_agent(self, agent):
 
-		body = agent.getBody()
-		sizes = agent.getSizes()
-		color = agent.getColor()
-		shape = agent.getShape()
+		body = agent.get_body()
+		sizes = agent.get_sizes()
+		color = agent.get_color()
+		shape = agent.get_shape()
 
 		x, y, z = body.getPosition()
 		R = body.getRotation()

@@ -10,8 +10,8 @@ class Simulation(object):
 
 	def __init__(self, agents):
 
-		self.createWorld()
-		self.createEnvironment()
+		self.create_world()
+		self.create_environment()
 		self.contactJoints = ode.JointGroup()
 
 		self.agents = []
@@ -19,30 +19,31 @@ class Simulation(object):
 		for i in range(agents):
 			self.agents.append(Agent(self, i))
 
-	def createWorld(self):
+	def create_world(self):
 
 		self.world = ode.World()
 		self.world.setGravity((0,-9.81, 0))
 		self.world.setERP(0.8)
 		self.world.setCFM(1E-5)
 
-	def createEnvironment(self):
-		
-		self.space = ode.Space()
+	def create_environment(self):
+            self.space = ode.Space()
+            self.floor = ode.GeomPlane(self.space, (0, 1, 0), 0)
+            self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -6 )
+            self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -6)
+            self.wall3 = ode.GeomPlane(self.space, (0, 0, -1), -6)
+            self.wall3 = ode.GeomPlane(self.space, (0, 0, 1), -6)
 
-		self.floor = ode.GeomPlane(self.space, (0, 1, 0), 0)
-		#todo - create walls
-
-	def getWorld(self):
+	def get_world(self):
 		return self.world
 
-	def getSpace(self):
+	def get_space(self):
 		return self.space
 
-	def getAgents(self):
+	def get_agents(self):
 		return self.agents
 
-	def nearCallback(self, args, geom1, geom2):
+	def near_callback(self, args, geom1, geom2):
 
 		body1, body2 = geom1.getBody(), geom2.getBody()
 		if (body1 is None):
@@ -69,14 +70,14 @@ class Simulation(object):
 			time.sleep(t)
 
 		for agent in self.agents:
-			agent.getBody().addForce((-400, 0.0, 0.0))
+			agent.get_body().addForce((500, 0.0, 0.0))
 
 		glutPostRedisplay()
 
 		n = 4
 
 		for i in range(n):
-			self.space.collide((), self.nearCallback)
+			self.space.collide((), self.near_callback)
 			self.world.step(self.dt/n)
 			self.contactJoints.empty()		
 

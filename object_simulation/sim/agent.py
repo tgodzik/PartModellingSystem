@@ -12,10 +12,10 @@ class Agent(object):
 		self.number = number
 		self.sim = sim
 		
-		self.generateSizes()
-		self.createGeom()
+		self.generate_sizes()
+		self.create_geometry()
 
-	def generateSizes(self):
+	def generate_sizes(self):
 
 		if (self.shape == self.SHAPE_BOX):
 			self.sizes = {'lx': random.uniform(0.2, 1), 'ly': random.uniform(0.2, 1), 'lz': random.uniform(0.2, 1)}
@@ -27,9 +27,9 @@ class Agent(object):
 		self.color = (random.random(), random.random(), random.random())
 		self.density = 1000
 
-	def createGeom(self):
+	def create_geometry(self):
 
-		self.body = ode.Body(self.sim.getWorld())
+		self.body = ode.Body(self.sim.get_world())
 		M = ode.Mass()
 
 		if (self.shape == self.SHAPE_BOX):
@@ -42,29 +42,29 @@ class Agent(object):
 		self.body.setMass(M)
 
 		if (self.shape == self.SHAPE_BOX):
-			self.geom = ode.GeomBox(self.sim.getSpace(), lengths=(self.sizes['lx'], self.sizes['ly'], self.sizes['lz']))
+			self.geom = ode.GeomBox(self.sim.get_space(), lengths=(self.sizes['lx'], self.sizes['ly'], self.sizes['lz']))
 		elif (self.shape == self.SHAPE_SPHERE):
-			self.geom = ode.GeomSphere(self.sim.getSpace(), self.sizes['radius'])
+			self.geom = ode.GeomSphere(self.sim.get_space(), self.sizes['radius'])
 		elif (self.shape == self.SHAPE_CYLINDER):
-			self.geom = ode.GeomCylinder(self.sim.getSpace(), self.sizes['radius'], self.sizes['height'])
+			self.geom = ode.GeomCylinder(self.sim.get_space(), self.sizes['radius'], self.sizes['height'])
 
 		self.geom.setBody(self.body)
 
-		self.body.setPosition((random.uniform(-10, 10), random.uniform(1, 10), random.uniform(-10, 10)))
+		self.body.setPosition((random.uniform(-5, 5), random.uniform(1, 3), random.uniform(-5, 5)))
 
 		theta = 0
 		ct = math.cos(theta)
 		st = math.sin(theta)
 		self.body.setRotation([ct, 0., -st, 0., 1., 0., st, 0., ct])
 
-	def getShape(self):
+	def get_shape(self):
 		return self.shape
 
-	def getBody(self):
+	def get_body(self):
 		return self.body
 
-	def getSizes(self):
+	def get_sizes(self):
 		return self.sizes
 
-	def getColor(self):
+	def get_color(self):
 		return self.color

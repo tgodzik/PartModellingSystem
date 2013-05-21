@@ -4,5 +4,5 @@ from sim.simulation import Simulation
 
 if __name__ == '__main__':
 
-    sim = Simulation(100)
+    sim = Simulation(5)
     sim.run()

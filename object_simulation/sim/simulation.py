@@ -1,4 +1,4 @@
-import ode, time
+import ode, time, random
 from agent import Agent
 from draw import Draw
 from OpenGL.GLUT import glutPostRedisplay
@@ -6,6 +6,7 @@ from OpenGL.GLUT import glutPostRedisplay
 class Simulation(object):
     fps = 50
     dt = 1.0 / fps
+    agents_to_add=[]
 
     def __init__(self, agents):
         self.create_world()
@@ -43,20 +44,28 @@ class Simulation(object):
     def near_callback(self, args, geom1, geom2):
         body1, body2 = geom1.getBody(), geom2.getBody()
 
-        if (body1 is not None) and (body2 is not None)  :
-            print "Bodies collided"
-
-
         if (body1 is None):
             body1 = ode.environment
         if (body2 is None):
             body2 = ode.environment
 
-
         if (ode.areConnected(body1, body2)):
             return
 
         contacts = ode.collide(geom1, geom2)
+
+        #try to fight or breed
+        if (body1 is not None) and (body2 is not None) and contacts  :
+                    rd=random.random()
+                    if rd<0.9:
+                        print 'fighting'
+                        body1.agent.fight(body2.agent)
+                    elif rd>=0.9:
+                        print 'breeding'
+                        if body1.agent.energy>400 and body2.agent.energy>400:
+                            self.agents_to_add.append(Agent(self,len(self.agents),body1.agent.shape,False,body1.agent,body2.agent))
+
+#
 
         for c in contacts:
             c.setBounce(0.2)
@@ -69,9 +78,20 @@ class Simulation(object):
 
         if (t > 0):
             time.sleep(t)
+        for agent in self.agents_to_add:
+            agent.create_geometry()
+            self.agents.append(agent)
+            self.agents_to_add.remove(agent)
 
         for agent in self.agents:
-            agent.move()
+            if(agent.energy<=0):
+                self.agents.remove(agent)
+                del agent.body
+                del agent.geom
+                del agent
+            else :
+                agent.move()
+
 
         glutPostRedisplay()
 

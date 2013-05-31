@@ -1,44 +1,31 @@
 import ode, random, math
 
 class Agent(object):
+
     SHAPE_BOX = 1
     SHAPE_SPHERE = 2
     SHAPE_CYLINDER = 3
-    direction=(0.0,0.0,1.0)
 
-    def __init__(self, sim, number, shape,new=True,agent1=None,agent2=None):
-        self.shape = shape
-        self.number = number
+    def __init__(self, sim, number, shape, breeded=False):
+
         self.sim = sim
-        if new:
+        self.number = number
+        self.shape = shape
+
+        if not breeded:
             self.generate_sizes()
             self.create_geometry()
-            self.energy=random.randint(1000,1500)
+            self.energy = random.randint(1000, 1500)
         else:
-            self.energy=400
-            self.inherit_sizes(agent1,agent2)
-            agent1.energy=agent1.energy-200
-            agent2.energy=agent2.energy-200
-            #self.create_geometry()
+            self.energy = 400
 
+        self.direction = (0.0, 0.0, 1.0)
 
-
-    #moves in one direction or changes it randomly
     def move(self):
-        self.body.addForce((self.energy*self.direction[0],0.0,self.energy*self.direction[2]))
-        if random.random > 0.9:
-            choice=random.randint(1,4)
-            if choice==1:
-                self.direction=(1.0,0.0,0.0)
-            elif choice==2:
-                self.direction=(-1.0,0.0,0.0)
-            elif choice==3:
-                self.direction=(0.0,0.0,1.0)
-            else:
-                self.direction=(0.0,0.0,-1.0)
+        self.body.addForce((self.energy * self.direction[0], 0.0, self.energy * self.direction[2]))
 
-    #randomize size and colors initialy
     def generate_sizes(self):
+
         if (self.shape == self.SHAPE_BOX):
             self.sizes = {'lx': random.uniform(0.2, 1), 'ly': random.uniform(0.2, 1), 'lz': random.uniform(0.2, 1)}
         elif (self.shape == self.SHAPE_SPHERE):
@@ -49,61 +36,28 @@ class Agent(object):
         self.color = (random.random(), random.random(), random.random())
         self.density = 1000
 
-    #    inheritance model
-    def inherit_sizes(self,agent1,agent2):
+    def get_one(self, value1, value2):
+        return value1 if random.random() > 0.5 else value2
+
+    def inherit_sizes(self, agent1, agent2):
+
         self.sizes={}
 
         if (self.shape == self.SHAPE_BOX):
-
-            if random.random()>0.5:
-                self.sizes['lx']=agent1.sizes['lx']
-            else:
-                self.sizes['lx']=agent2.sizes['lx']
-            if random.random()>0.5:
-                self.sizes['ly']=agent1.sizes['ly']
-            else:
-                self.sizes['ly']=agent2.sizes['ly']
-            if random.random()>0.5:
-                self.sizes['lz']=agent1.sizes['lz']
-            else:
-                self.sizes['lz']=agent2.sizes['lz']
-
+            self.sizes = {'lx': self.get_one(agent1.sizes['lx'], agent2.sizes['lx']), 'ly': self.get_one(agent1.sizes['ly'], agent2.sizes['ly']), 'lz': self.get_one(agent1.sizes['lz'], agent2.sizes['lz'])}
         elif (self.shape == self.SHAPE_SPHERE):
-            if random.random()>0.5:
-                self.sizes['radius']=agent1.sizes['radius']
-            else:
-                self.sizes['radius']=agent2.sizes['radius']
+            self.sizes = {'radius': self.get_one(agent1.sizes['radius'], agent2.sizes['radius'])}
         elif (self.shape == self.SHAPE_CYLINDER):
-            if random.random()>0.5:
-                self.sizes['radius']=agent1.sizes['radius']
-            else:
-                self.sizes['radius']=agent2.sizes['radius']
-            if random.random()>0.5:
-                self.sizes['height']=agent1.sizes['height']
-            else:
-                self.sizes['height']=agent2.sizes['height']
-        #chossing color scheme
-        r=0
-        g=0
-        b=0
-        if random.random()>0.5:
-            r=agent1.color[0]
-        else:
-            r=agent2.color[0]
-        if random.random()>0.5:
-            g=agent1.color[1]
-        else:
-            g=agent2.color[1]
-        if random.random()>0.5:
-            b=agent1.color[2]
-        else:
-            b=agent2.color[2]
-        self.color = (r,g,b)
+            self.sizes = {'radius': self.get_one(agent1.sizes['radius'], agent2.sizes['radius']), 'height': self.get_one(agent1.sizes['height'], agent2.sizes['height'])}
+
+        self.color = (self.get_one(agent1.color[0], agent2.color[0]), self.get_one(agent1.color[1], agent2.color[1]), self.get_one(agent1.color[2], agent2.color[2]))
         self.density = 1000
 
     def create_geometry(self):
-        self.body = ode.Body(self.sim.get_world())
-        self.body.agent=self
+
+        self.body = ode.Body(self.sim.world)
+        self.body.agent = self
+
         M = ode.Mass()
 
         if (self.shape == self.SHAPE_BOX):
@@ -116,51 +70,54 @@ class Agent(object):
         self.body.setMass(M)
 
         if (self.shape == self.SHAPE_BOX):
-            self.geom = ode.GeomBox(self.sim.get_space(),
-                lengths=(self.sizes['lx'], self.sizes['ly'], self.sizes['lz']))
+            self.geom = ode.GeomBox(self.sim.space, lengths=(self.sizes['lx'], self.sizes['ly'], self.sizes['lz']))
         elif (self.shape == self.SHAPE_SPHERE):
-            self.geom = ode.GeomSphere(self.sim.get_space(), self.sizes['radius'])
+            self.geom = ode.GeomSphere(self.sim.space, self.sizes['radius'])
         elif (self.shape == self.SHAPE_CYLINDER):
-            self.geom = ode.GeomCylinder(self.sim.get_space(), self.sizes['radius'], self.sizes['height'])
+            self.geom = ode.GeomCylinder(self.sim.space, self.sizes['radius'], self.sizes['height'])
 
         self.geom.setBody(self.body)
-        self.body.name="agent"
 
         self.body.setPosition((random.uniform(-5, 5), random.uniform(2, 5), random.uniform(-5, 5)))
 
         theta = 0
         ct = math.cos(theta)
         st = math.sin(theta)
-        self.body.setRotation([ct, 0., -st, 0., 1., 0., st, 0., ct])
+        self.body.setRotation([ct, 0.0, -st, 0.0, 1.0, 0.0, st, 0.0, ct])
 
-    def fight(self,other):
-        size1=self.get_size()
-        size2=other.get_size()
-        if size1>size2:
-            self.energy=self.energy+100
-            other.energy=other.energy-100
-        elif size2>size1:
-            self.energy=self.energy+100
-            other.energy=other.energy-100
+    def fight(self, other):
 
+        fit1 = self.fitness()
+        fit2 = other.fitness()
 
+        if fit1 > fit2:
+            self.energy += 100
+            other.energy -= 100
+        elif fit2 > fit1:
+            self.energy -= 100
+            other.energy += 100
 
-    def get_shape(self):
-        return self.shape
+    def breed(self, other):
+        
+        if self.energy > 400 and other.energy > 400:
 
-    def get_body(self):
-        return self.body
+            self.energy -= 200
+            other.energy -= 200
 
-    def get_sizes(self):
-        return self.sizes
+            newAgent = Agent(self.sim, self.sim.newAgentNumber, self.shape, True)
+            newAgent.inherit_sizes(self, other)
 
-    def get_size(self):
+            self.sim.agents_to_add.append(newAgent)
+            self.sim.newAgentNumber += 1
+
+    def fitness(self):
+        return self.color[1]-self.color[0]-self.color[2]
         if (self.shape == self.SHAPE_BOX):
-            return self.sizes['lx']*self.sizes['ly']*self.sizes['lz']
+            return self.sizes['lx'] * self.sizes['ly'] * self.sizes['lz']
         elif (self.shape == self.SHAPE_SPHERE):
-            return math.pi*self.sizes['radius']*self.sizes['radius']*self.sizes['radius']*4/3
+            return math.pi * self.sizes['radius'] * self.sizes['radius'] * self.sizes['radius'] * 4/3
         elif (self.shape == self.SHAPE_CYLINDER):
-            return math.pi*self.sizes['radius']*self.sizes['radius']*self.sizes['height']
+            return math.pi * self.sizes['radius'] * self.sizes['radius'] * self.sizes['height']
 
-    def get_color(self):
-        return self.color
+    def __str__(self):
+        return "\tAgent " + str(self.number) + " [shape: " + str(self.shape) + ", fitness: " + str(self.fitness()) + ", energy: " + str(self.energy) + "]"

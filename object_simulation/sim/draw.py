@@ -1,94 +1,167 @@
 from agent import Agent
+from math import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 class Draw(object):
 
-	def __init__(self, sim):
+    def __init__(self, sim):
 
-		self.sim = sim
-		self.init_openGl()
+        self.sim = sim
+        self.init_openGl()
+        self.init_camera()
 
-		glutKeyboardFunc(self.key_callback)
-		glutDisplayFunc(self.draw)
-		glutIdleFunc(self.sim.idle)
-		glutMainLoop()
+        glutKeyboardFunc(self.key_callback)
+        glutSpecialFunc(self.special_key_callback);
+        glutDisplayFunc(self.draw)
+        glutReshapeFunc(self.reshape)
+        glutIdleFunc(self.sim.idle)
+        glutMainLoop()
 
-	def init_openGl(self):
+    def init_openGl(self):
 
-		glutInit([])
-		glutInitDisplayMode (GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE)
+        glutInit([])
+        glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE)
 
-		glutInitWindowPosition(0, 0);
-		glutInitWindowSize(640, 480);
-		glutCreateWindow("Simulation window")
+        glutInitWindowPosition(0, 0);
+        glutInitWindowSize(640, 480);
+        glutCreateWindow("Simulation window")
 
-	def key_callback(self, c, x, y):
-		sys.exit(0)
+    def init_camera(self):
 
-	def draw(self):
+        self.xpos = 0
+        self.ypos = 0
+        self.zpos = 0
+        self.xrot = 0
+        self.yrot = 90
+        self.angle = 0.0
 
-		self.render()
-		agents = self.sim.get_agents()
+    def key_callback(self, c, x, y):
 
-		for agent in agents:
-			self.draw_agent(agent)
+        if (c == '\x1b'):
+            sys.exit(0)
+        elif (c == 'i'):
+            for agent in self.sim.agents:
+                print agent
+            print "Total: " + str(len(self.sim.agents)) + " agents in environment"
 
-		glutSwapBuffers()
+    def special_key_callback(self, c, x, y):
 
-	def render(self):
-		
-		glViewport(0, 0, 640, 480)
-		glClearColor(0.8, 0.8, 0.9, 0)
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST)
-		glDisable(GL_LIGHTING)
-		glEnable(GL_LIGHTING)
-		glEnable(GL_NORMALIZE)
-		glShadeModel(GL_FLAT)
+        if (c == GLUT_KEY_RIGHT):
 
-		glMatrixMode(GL_PROJECTION)
-		glLoadIdentity()
-		gluPerspective(90,1.3333,0.2,20)
+            self.yrot += 10;
+            if (self.yrot > 360):
+                self.yrot -= 360
 
-		glMatrixMode(GL_MODELVIEW)
-		glLoadIdentity()
+        elif (c == GLUT_KEY_LEFT):
 
-		glLightfv(GL_LIGHT0,GL_POSITION,[0,0,1,0])
-		glLightfv(GL_LIGHT0,GL_DIFFUSE,[1,1,1,1])
-		glLightfv(GL_LIGHT0,GL_SPECULAR,[1,1,1,1])
-		glEnable(GL_LIGHT0)
+            self.yrot -= 10;
+            if (self.yrot < -360):
+                self.yrot += 360
 
-		gluLookAt(2.4, 3.6, 4.8, 0.5, 0.5, 0, 0, 1, 0)
+        elif (c == GLUT_KEY_UP):
 
-	def draw_agent(self, agent):
+            yrotrad = (self.yrot / 180 * pi)
+            xrotrad = (self.xrot / 180 * pi)
 
-		body = agent.get_body()
-		sizes = agent.get_sizes()
-		color = agent.get_color()
-		shape = agent.get_shape()
+            self.xpos += sin(yrotrad)/10
+            self.zpos -= cos(yrotrad)/10
+            self.ypos -= sin(xrotrad)/10
 
-		x, y, z = body.getPosition()
-		R = body.getRotation()
-		rot = [R[0], R[3], R[6], 0.,
-           R[1], R[4], R[7], 0.,
-           R[2], R[5], R[8], 0.,
-           x, y, z, 1.0]
-		glPushMatrix()
-		glMultMatrixd(rot)
-		glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, color)
+        elif (c == GLUT_KEY_DOWN):
 
-		if (shape == Agent.SHAPE_BOX):
-			glScalef(sizes['lx'], sizes['ly'], sizes['lz'])
-			glutSolidCube(1)
-		elif (shape == Agent.SHAPE_SPHERE):
-			d = sizes['radius']*2
-			glScalef(d, d, d)
-			glutSolidSphere(sizes['radius'], 32, 32)
-		elif (shape == Agent.SHAPE_CYLINDER):
-			d = sizes['radius']*2
-			glScalef(sizes['height'], d, d)
-			glutSolidCylinder(sizes['radius'], sizes['height'], 32, 32)
+            yrotrad = (self.yrot / 180 * pi)
+            xrotrad = (self.xrot / 180 * pi)
 
-		glPopMatrix()
+            self.xpos -= sin(yrotrad)/10
+            self.zpos += cos(yrotrad)/10
+            self.ypos += sin(xrotrad)/10
+
+    def draw(self):
+
+        self.render()
+        self.draw_floor()
+        
+        for agent in self.sim.agents:
+            self.draw_agent(agent)
+
+        glutSwapBuffers()
+
+    def reshape(self, w, h):
+        glViewport(0, 0, w, h)
+
+    def render(self):
+        
+        glClearColor(0.8, 0.8, 0.9, 0)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST)
+        glDisable(GL_LIGHTING)
+        glEnable(GL_LIGHTING)
+        glEnable(GL_NORMALIZE)
+        glShadeModel(GL_FLAT)
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(90, 1.3333, 0.2, 20)
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        glLightfv(GL_LIGHT0, GL_POSITION, [0,0,1,0])
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, [1,1,1,1])
+        glLightfv(GL_LIGHT0, GL_SPECULAR, [1,1,1,1])
+        glEnable(GL_LIGHT0)
+
+        gluLookAt(2.4, 3.6, 4.8, 0.5, 0.5, 0, 0, 1, 0)
+
+        glRotatef(self.xrot, 1.0, 0.0, 0.0)
+        glRotatef(self.yrot, 0.0, 1.0, 0.0)
+        glTranslated(-self.xpos, -self.ypos, -self.zpos)
+
+    def draw_floor(self):
+
+        normal, d = self.sim.floor.getParams()
+
+        glPushMatrix()
+
+        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, (0.0, 1.0, 0.0))
+
+        glBegin(GL_QUADS)
+        glNormal3f(*normal)
+        glVertex3f(-self.sim.boardSize/2, d, -self.sim.boardSize/2)
+        glNormal3f(*normal)
+        glVertex3f(self.sim.boardSize/2, d, -self.sim.boardSize/2)
+        glNormal3f(*normal)
+        glVertex3f(self.sim.boardSize/2, d, self.sim.boardSize/2)
+        glNormal3f(*normal)
+        glVertex3f(-self.sim.boardSize/2, d, self.sim.boardSize/2)
+        glEnd()
+
+        glPopMatrix()
+
+    def draw_agent(self, agent):
+
+        x, y, z = agent.body.getPosition()
+        R = agent.body.getRotation()
+        rot = [R[0], R[3], R[6], 0.,
+            R[1], R[4], R[7], 0.,
+            R[2], R[5], R[8], 0.,
+            x, y, z, 1.0]
+        glPushMatrix()
+        glMultMatrixd(rot)
+        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, agent.color)
+
+        if (agent.shape == Agent.SHAPE_BOX):
+            glScalef(agent.sizes['lx'], agent.sizes['ly'], agent.sizes['lz'])
+            glutSolidCube(1)
+        elif (agent.shape == Agent.SHAPE_SPHERE):
+            d = agent.sizes['radius']*2
+            glScalef(d, d, d)
+            glutSolidSphere(agent.sizes['radius'], 32, 32)
+        elif (agent.shape == Agent.SHAPE_CYLINDER):
+            d = agent.sizes['radius']*2
+            glScalef(agent.sizes['height'], d, d)
+            glutSolidCylinder(agent.sizes['radius'], agent.sizes['height'], 32, 32)
+
+        glPopMatrix()

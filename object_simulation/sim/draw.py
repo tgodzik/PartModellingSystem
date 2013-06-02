@@ -81,7 +81,7 @@ class Draw(object):
     def draw(self):
 
         self.render()
-        self.draw_floor()
+        self.draw_floor(self.sim.floor)
         
         for agent in self.sim.agents:
             self.draw_agent(agent)
@@ -119,10 +119,9 @@ class Draw(object):
         glRotatef(self.yrot, 0.0, 1.0, 0.0)
         glTranslated(-self.xpos, -self.ypos, -self.zpos)
 
-    def draw_floor(self):
+    def draw_floor(self,floor):
 
-        normal, d = self.sim.floor.getParams()
-
+        normal, d = floor.getParams()
         glPushMatrix()
 
         glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, (0.0, 1.0, 0.0))

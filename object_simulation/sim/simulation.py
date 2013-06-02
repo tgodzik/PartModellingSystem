@@ -8,8 +8,14 @@ class Simulation(object):
     fps = 50
     dt = 1.0 / fps
 
-    def __init__(self, agents, boardSize):
+    def __init__(self, agents, boardSize,func_fight=None,func_fit=None,func_breed=None):
 
+        if func_fight is not None:
+            Agent.fight=func_fight
+        if func_fit is not None:
+            Agent.fitness=func_fit
+        if func_breed is not None:
+            Agent.breed=func_breed
         self.boardSize = boardSize
         self.create_world()
         self.create_environment()

@@ -19,7 +19,7 @@ class Agent(object):
         else:
             self.energy = 400
 
-        self.direction = (0.0, 0.0, 1.0)
+        self.direction = ((random.random()*2)-1, (random.random()*2)-1, (random.random()*2)-1)
 
     def move(self):
         self.body.addForce((self.energy * self.direction[0], 0.0, self.energy * self.direction[2]))
@@ -98,7 +98,7 @@ class Agent(object):
             other.energy += 100
 
     def breed(self, other):
-        
+
         if self.energy > 400 and other.energy > 400:
 
             self.energy -= 200
@@ -111,7 +111,7 @@ class Agent(object):
             self.sim.newAgentNumber += 1
 
     def fitness(self):
-        return self.color[1]-self.color[0]-self.color[2]
+        #return self.color[1]-self.color[0]-self.color[2]
         if (self.shape == self.SHAPE_BOX):
             return self.sizes['lx'] * self.sizes['ly'] * self.sizes['lz']
         elif (self.shape == self.SHAPE_SPHERE):

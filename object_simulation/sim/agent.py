@@ -22,7 +22,7 @@ class Agent(object):
         else:
             self.energy = 400
 
-        self.direction = ((random.random()*2)-1, (random.random()*2)-1, (random.random()*2)-1)
+        self.direction = ((random.random()*2)-1, 0.0, (random.random()*2)-1)
 
     def move(self):
         self.body.addForce((self.energy * self.direction[0], 0.0, self.energy * self.direction[2]))

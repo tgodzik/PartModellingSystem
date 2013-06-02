@@ -33,7 +33,7 @@ class Simulation(object):
         self.agents_to_add = []
 
         for i in range(agents):
-            self.agents.append(Agent(self, i, Agent.SHAPE_SPHERE))
+            self.agents.append(Agent(self, i, Agent.SHAPE_BOX))
 
         self.newAgentNumber = agents
 

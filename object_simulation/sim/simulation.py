@@ -10,8 +10,8 @@ class Simulation(object):
 
     def __init__(self, agents, boardSize, parameters):
         
-        self.max_iter=-1
-        #from dictionary of functions to replace the default ones
+        self.max_iter = -1
+        
         if "func_fight" in parameters:
             Agent.fight = parameters["func_fight"]
 
@@ -19,10 +19,10 @@ class Simulation(object):
             Agent.fitness = parameters["func_fit"]
 
         if "func_breed" in parameters:
-            Agent.breed=parameters["func_breed"]
+            Agent.breed = parameters["func_breed"]
             
         if "maximum_iterations" in parameters:
-            self.max_iter=parameters["maximum_iterations"]
+            self.max_iter = parameters["maximum_iterations"]
             
         if "func_create" in parameters:
             Agent.create_agent = parameters["func_create"]
@@ -33,7 +33,7 @@ class Simulation(object):
             floor = (0, 1, 0)
 
         
-        self.iter=0
+        self.iter = 0
         self.boardSize = boardSize
         self.create_world()
         self.create_environment(floor)
@@ -100,9 +100,12 @@ class Simulation(object):
             j.attach(body1, body2)
 
     def __str__(self):
-        result=""
+
+        result = ""
+
         for agent in self.agents:
-            result+=str( agent)+"\n"
+            result += str(agent) + "\n"
+            
         return result + "Total: " + str(len(self.agents)) + " agents in environment\n"
 
     def idle(self):
@@ -126,6 +129,7 @@ class Simulation(object):
                 del agent
             else:
                 agent.move()
+
         if not self.no_graphics:
             glutPostRedisplay()
 
@@ -135,23 +139,26 @@ class Simulation(object):
             self.space.collide((), self.near_callback)
             self.world.step(self.dt / n)
             self.contactJoints.empty()
-        self.iter+=1
-        if self.max_iter !=-1:
-            if self.iter>self.max_iter:
+
+        self.iter += 1
+
+        if self.max_iter != -1:
+            if self.iter > self.max_iter:
                 print self
                 exit(0)
 
         self.lasttime = time.time()
 
     def run(self):
-        self.no_graphics=False
+
+        self.no_graphics = False
         self.lasttime = time.time()
         self.draw = Draw(self)
 
-
     def run_without_graphics(self):
+
         self.lasttime = time.time()
-        self.no_graphics=True
+        self.no_graphics = True
+
         while True:
             self.idle()
-

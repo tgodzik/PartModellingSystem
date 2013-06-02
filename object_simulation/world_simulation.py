@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     parameters = {
         "func_fight": fight,
-        "maximum_iterations":1000,
+        "maximum_iterations": 1000,
         "floor": (0.2, 0.979796, 0)
     }
 

@@ -10,6 +10,7 @@ class Simulation(object):
 
     def __init__(self, agents, boardSize,parameters):
 
+        self.max_iter=-1
         #from dictionary of functions to replace the default ones
         if "func_fight" in parameters:
             Agent.fight=parameters["func_fight"]
@@ -17,6 +18,8 @@ class Simulation(object):
             Agent.fitness=parameters["func_fit"]
         if "func_breed" in parameters:
             Agent.breed=parameters["func_breed"]
+        if "maximum_iterations" in parameters:
+            self.max_iter=parameters["maximum_iterations"]
         if "func_create" in parameters:
             Agent.create_agent=parameters["func_create"]
         if "floor" in parameters:
@@ -24,6 +27,7 @@ class Simulation(object):
         else:
             floor=(0, 1, 0)
 
+        self.iter=0
         self.boardSize = boardSize
         self.create_world()
         self.create_environment(floor)
@@ -89,6 +93,12 @@ class Simulation(object):
             j = ode.ContactJoint(self.world, self.contactJoints, c)
             j.attach(body1, body2)
 
+    def __str__(self):
+        result=""
+        for agent in self.agents:
+            result+=str( agent)+"\n"
+        return result + "Total: " + str(len(self.agents)) + " agents in environment\n"
+
     def idle(self):
 
         t = self.dt - (time.time() - self.lasttime)
@@ -119,6 +129,11 @@ class Simulation(object):
             self.space.collide((), self.near_callback)
             self.world.step(self.dt / n)
             self.contactJoints.empty()
+        self.iter+=1
+        if self.max_iter !=-1:
+            if self.iter>self.max_iter:
+                print self
+                exit(0)
 
         self.lasttime = time.time()
 

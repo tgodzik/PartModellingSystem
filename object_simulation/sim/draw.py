@@ -42,9 +42,7 @@ class Draw(object):
         if (c == '\x1b'):
             sys.exit(0)
         elif (c == 'i'):
-            for agent in self.sim.agents:
-                print agent
-            print "Total: " + str(len(self.sim.agents)) + " agents in environment"
+            print self.sim
 
     def special_key_callback(self, c, x, y):
 

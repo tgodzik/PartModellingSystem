@@ -126,8 +126,8 @@ class Simulation(object):
                 del agent
             else:
                 agent.move()
-
-        glutPostRedisplay()
+        if not self.no_graphics:
+            glutPostRedisplay()
 
         n = 4
 
@@ -144,5 +144,14 @@ class Simulation(object):
         self.lasttime = time.time()
 
     def run(self):
+        self.no_graphics=False
         self.lasttime = time.time()
         self.draw = Draw(self)
+
+
+    def run_without_graphics(self):
+        self.lasttime = time.time()
+        self.no_graphics=True
+        while True:
+            self.idle()
+

@@ -21,9 +21,11 @@ def fitness(self):
 if __name__ == '__main__':
 
     parameters = {
-        "func_fight": fight, 
+        "func_fight": fight,
+        "maximum_iterations":1000,
         "floor": (0.2, 0.979796, 0)
     }
 
     sim = Simulation(20, 12, parameters)
     sim.run()
+    #sim.run_without_graphics()

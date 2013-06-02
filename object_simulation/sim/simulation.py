@@ -8,17 +8,25 @@ class Simulation(object):
     fps = 50
     dt = 1.0 / fps
 
-    def __init__(self, agents, boardSize,func_fight=None,func_fit=None,func_breed=None):
+    def __init__(self, agents, boardSize,parameters):
 
-        if func_fight is not None:
-            Agent.fight=func_fight
-        if func_fit is not None:
-            Agent.fitness=func_fit
-        if func_breed is not None:
-            Agent.breed=func_breed
+        #from dictionary of functions to replace the default ones
+        if "func_fight" in parameters:
+            Agent.fight=parameters["func_fight"]
+        if "func_fit" in parameters:
+            Agent.fitness=parameters["func_fit"]
+        if "func_breed" in parameters:
+            Agent.breed=parameters["func_breed"]
+        if "func_create" in parameters:
+            Agent.create_agent=parameters["func_create"]
+        if "floor" in parameters:
+            floor=parameters["floor"]
+        else:
+            floor=(0, 1, 0)
+
         self.boardSize = boardSize
         self.create_world()
-        self.create_environment()
+        self.create_environment(floor)
         self.contactJoints = ode.JointGroup()
 
         self.agents = []
@@ -36,10 +44,10 @@ class Simulation(object):
         self.world.setERP(0.8)
         self.world.setCFM(1E-5)
 
-    def create_environment(self):
+    def create_environment(self,floor):
 
         self.space = ode.Space()
-        self.floor = ode.GeomPlane(self.space, (0, 1, 0), 0)
+        self.floor = ode.GeomPlane(self.space, floor, 0)
         self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.boardSize/2)
         self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -self.boardSize/2)
         self.wall3 = ode.GeomPlane(self.space, (0, 0, -1), -self.boardSize/2)

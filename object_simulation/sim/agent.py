@@ -6,12 +6,15 @@ class Agent(object):
     SHAPE_SPHERE = 2
     SHAPE_CYLINDER = 3
 
+    #creating as separate func
     def __init__(self, sim, number, shape, breeded=False):
 
         self.sim = sim
         self.number = number
         self.shape = shape
+        self.create_agent(breeded)
 
+    def create_agent(self,breeded):
         if not breeded:
             self.generate_sizes()
             self.create_geometry()

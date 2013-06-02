@@ -19,6 +19,11 @@ def fitness(self):
     return self.color[1]-self.color[0]-self.color[2]
 
 if __name__ == '__main__':
-    parameters={"func_fight":fight,"floor":(0.2, 0.979796,0)}
-    sim = Simulation(20, 12,parameters)
+
+    parameters = {
+        "func_fight": fight, 
+        "floor": (0.2, 0.979796, 0)
+    }
+
+    sim = Simulation(20, 12, parameters)
     sim.run()

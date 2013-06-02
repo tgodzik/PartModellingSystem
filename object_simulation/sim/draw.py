@@ -11,6 +11,7 @@ class Draw(object):
         self.sim = sim
         self.init_openGl()
         self.init_camera()
+        self.drawWalls = True
 
         glutKeyboardFunc(self.key_callback)
         glutSpecialFunc(self.special_key_callback);
@@ -45,6 +46,8 @@ class Draw(object):
             for agent in self.sim.agents:
                 print agent
             print "Total: " + str(len(self.sim.agents)) + " agents in environment"
+        elif (c == 'd'):
+            self.drawWalls = not self.drawWalls
 
     def special_key_callback(self, c, x, y):
 
@@ -81,12 +84,15 @@ class Draw(object):
     def draw(self):
 
         self.render()
-        152-251-152
+
         self.draw_floor(self.sim.floor)
-        self.draw_wall(self.sim.wall1,(0.7,1.0,0.7))
-        self.draw_wall(self.sim.wall2,(0.7,1.0,0.7))
-        self.draw_wall(self.sim.wall3,(0.7,1.0,0.7))
-        self.draw_wall(self.sim.wall4,(0.7,1.0,0.7))
+
+        if self.drawWalls:
+            self.draw_wall(self.sim.wall1)
+            self.draw_wall(self.sim.wall2)
+            self.draw_wall(self.sim.wall3)
+            self.draw_wall(self.sim.wall4)
+
         for agent in self.sim.agents:
             self.draw_agent(agent)
 
@@ -123,7 +129,7 @@ class Draw(object):
         glRotatef(self.yrot, 0.0, 1.0, 0.0)
         glTranslated(-self.xpos, -self.ypos, -self.zpos)
 
-    def draw_floor(self,floor,color=(0.7,1.0,0.7)):
+    def draw_floor(self, floor, color=(0.7, 1.0, 0.7)):
 
         normal, d = floor.getParams()
         glPushMatrix()
@@ -131,52 +137,69 @@ class Draw(object):
         glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, color)
 
         glBegin(GL_QUADS)
+
         glNormal3f(*normal)
-        d=(normal[0]*self.sim.boardSize/2+normal[2]*self.sim.boardSize/2)/normal[1]
+        d = (normal[0]*self.sim.boardSize/2+normal[2]*self.sim.boardSize/2)/normal[1]
         glVertex3f(-self.sim.boardSize/2, d, -self.sim.boardSize/2)
+
         glNormal3f(*normal)
-        d=(-normal[0]*self.sim.boardSize/2+normal[2]*self.sim.boardSize/2)/normal[1]
+        d = (-normal[0]*self.sim.boardSize/2+normal[2]*self.sim.boardSize/2)/normal[1]
         glVertex3f(self.sim.boardSize/2, d, -self.sim.boardSize/2)
+
         glNormal3f(*normal)
-        d=(-normal[0]*self.sim.boardSize/2-normal[2]*self.sim.boardSize/2)/normal[1]
+        d = (-normal[0]*self.sim.boardSize/2-normal[2]*self.sim.boardSize/2)/normal[1]
         glVertex3f(self.sim.boardSize/2, d, self.sim.boardSize/2)
+
         glNormal3f(*normal)
-        d=(normal[0]*self.sim.boardSize/2-normal[2]*self.sim.boardSize/2)/normal[1]
+        d = (normal[0]*self.sim.boardSize/2-normal[2]*self.sim.boardSize/2)/normal[1]
         glVertex3f(-self.sim.boardSize/2, d, self.sim.boardSize/2)
+
         glEnd()
 
         glPopMatrix()
 
-    def draw_wall(self,wall,color=(0.7,1.0,0.7)):
+    def draw_wall(self, wall, color=(0.7, 1.0, 0.7)):
 
         normal, d = wall.getParams()
         glPushMatrix()
+
         glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, color)
 
         if normal[0]:
+
             glBegin(GL_QUADS)
+
             glNormal3f(*normal)
             glVertex3f(d*normal[0], -5.0, -self.sim.boardSize/2)
+
             glNormal3f(*normal)
             glVertex3f(d*normal[0], -5.0, self.sim.boardSize/2)
+
             glNormal3f(*normal)
             glVertex3f(d*normal[0], 5.0, self.sim.boardSize/2)
+
             glNormal3f(*normal)
             glVertex3f(d*normal[0], 5.0, -self.sim.boardSize/2)
+
             glEnd()
 
         if normal[2]:
+
             glBegin(GL_QUADS)
+
             glNormal3f(*normal)
             glVertex3f(-self.sim.boardSize/2, -5.0,d*normal[2] )
+
             glNormal3f(*normal)
             glVertex3f(self.sim.boardSize/2, -5.0,d*normal[2] )
+
             glNormal3f(*normal)
             glVertex3f(self.sim.boardSize/2 , 5.0,d*normal[2] )
+
             glNormal3f(*normal)
             glVertex3f( -self.sim.boardSize/2, 5.0,d*normal[2])
-            glEnd()
 
+            glEnd()
 
         glPopMatrix()
 

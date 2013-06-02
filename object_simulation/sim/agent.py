@@ -6,7 +6,6 @@ class Agent(object):
     SHAPE_SPHERE = 2
     SHAPE_CYLINDER = 3
 
-    #creating as separate func
     def __init__(self, sim, number, shape, breeded=False):
 
         self.sim = sim
@@ -14,7 +13,8 @@ class Agent(object):
         self.shape = shape
         self.create_agent(breeded)
 
-    def create_agent(self,breeded):
+    def create_agent(self, breeded):
+
         if not breeded:
             self.generate_sizes()
             self.create_geometry()
@@ -114,7 +114,7 @@ class Agent(object):
             self.sim.newAgentNumber += 1
 
     def fitness(self):
-        #return self.color[1]-self.color[0]-self.color[2]
+        
         if (self.shape == self.SHAPE_BOX):
             return self.sizes['lx'] * self.sizes['ly'] * self.sizes['lz']
         elif (self.shape == self.SHAPE_SPHERE):

@@ -8,25 +8,31 @@ class Simulation(object):
     fps = 50
     dt = 1.0 / fps
 
-    def __init__(self, agents, boardSize,parameters):
-
+    def __init__(self, agents, boardSize, parameters):
+        
         self.max_iter=-1
         #from dictionary of functions to replace the default ones
         if "func_fight" in parameters:
-            Agent.fight=parameters["func_fight"]
+            Agent.fight = parameters["func_fight"]
+
         if "func_fit" in parameters:
-            Agent.fitness=parameters["func_fit"]
+            Agent.fitness = parameters["func_fit"]
+
         if "func_breed" in parameters:
             Agent.breed=parameters["func_breed"]
+            
         if "maximum_iterations" in parameters:
             self.max_iter=parameters["maximum_iterations"]
+            
         if "func_create" in parameters:
-            Agent.create_agent=parameters["func_create"]
-        if "floor" in parameters:
-            floor=parameters["floor"]
-        else:
-            floor=(0, 1, 0)
+            Agent.create_agent = parameters["func_create"]
 
+        if "floor" in parameters:
+            floor = parameters["floor"]
+        else:
+            floor = (0, 1, 0)
+
+        
         self.iter=0
         self.boardSize = boardSize
         self.create_world()
@@ -37,7 +43,7 @@ class Simulation(object):
         self.agents_to_add = []
 
         for i in range(agents):
-            self.agents.append(Agent(self, i, Agent.SHAPE_BOX))
+            self.agents.append(Agent(self, i, Agent.SHAPE_SPHERE))
 
         self.newAgentNumber = agents
 

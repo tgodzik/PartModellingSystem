@@ -41,8 +41,7 @@ if __name__ == '__main__':
         "func_fight": fight,
         "maximum_iterations": 1000,
         "indices":INDICES,
-        "vertices":VERTICES,
-        "func_fit":fitness
+        "vertices":VERTICES
     }
 
     sim = Simulation(20, board_size, parameters)

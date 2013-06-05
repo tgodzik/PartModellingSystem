@@ -123,4 +123,4 @@ class Agent(object):
             return math.pi * self.sizes['radius'] * self.sizes['radius'] * self.sizes['height']
 
     def __str__(self):
-        return "\tAgent " + str(self.number) + " [shape: " + str(self.shape) + ", fitness: " + str(self.fitness()) + ", energy: " + str(self.energy) + "]"
+        return "\tAgent " + str(self.number) + " [shape: " + str(self.shape) + ", fitness: " + str(self.fitness()) + ", energy: " + str(self.energy) + "size, "+ str(self.sizes) + "]"

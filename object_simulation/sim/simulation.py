@@ -3,6 +3,7 @@ from agent import Agent
 from draw import Draw
 from OpenGL.GLUT import glutPostRedisplay
 
+
 class Simulation(object):
     fps = 50
     dt = 1.0 / fps
@@ -25,15 +26,33 @@ class Simulation(object):
         if "func_create" in parameters:
             Agent.create_agent = parameters["func_create"]
 
-        if "floor" in parameters:
-            floor = parameters["floor"]
-        else:
-            floor = (0, 1, 0)
-
-        self.iter = 0
         self.boardSize = boardSize
+
+        if "vertices" in parameters:
+            self.vertices = parameters["vertices"]
+        else:
+            self.vertices = [(self.boardSize / 2, -1.0, self.boardSize / 2),
+                             (0.0, -1.0, self.boardSize / 2),
+                             (-self.boardSize / 2, 1.0, self.boardSize / 2),
+                             (-self.boardSize / 2, 1.0, 0.0),
+                             (-self.boardSize / 2, 0.0, -self.boardSize / 2),
+                             (0.0, 0.0, -self.boardSize / 2),
+                             (self.boardSize / 2, -1.0, -self.boardSize / 2),
+                             (self.boardSize / 2, 0.0, 0.0),
+                             (0.0, 1.0, 0.0)]
+
+        if "indices" in parameters:
+            self.indices = parameters["indices"]
+        else:
+            self.indices = [(0, 8, 1), (1, 8, 2), (2, 8, 3), (3, 8, 4),
+                            (4, 8, 5),
+                            (5, 8, 6),
+                            (6, 8, 7),
+                            (7, 8, 0)]
+        self.iter = 0
+
         self.create_world()
-        self.create_environment(floor)
+        self.create_environment()
         self.contactJoints = ode.JointGroup()
 
         self.agents = []
@@ -53,30 +72,14 @@ class Simulation(object):
 
     def create_floor(self):
         # Create a trimesh geom for collision detection
-        self.vertices = [(self.boardSize / 2, -1.0, self.boardSize / 2),
-                         (0.0, -1.0, self.boardSize / 2),
-                         (-self.boardSize / 2, 1.0, self.boardSize / 2),
-                         (-self.boardSize / 2, 1.0, 0.0),
-                         (-self.boardSize / 2, 0.0, -self.boardSize / 2),
-                         (0.0, 0.0, -self.boardSize / 2),
-                         (self.boardSize / 2, 0.0, -self.boardSize / 2),
-                         (self.boardSize / 2, 0.0, 0.0),
-                         (0.0, 1.0, 0.0)
-        ]
 
-        self.indices = [(0, 8, 1),
-                        (1, 8, 2),
-                        (2, 8, 3),
-                        (3, 8, 4),
-                        (4, 8, 5),
-                        (5, 8, 6),
-                        (6, 8, 7),
-                        (7, 8, 0)]
+
+
         td = ode.TriMeshData()
         td.build(self.vertices, self.indices)
         self.floor = ode.GeomTriMesh(td, self.space)
 
-    def create_environment(self, floor):
+    def create_environment(self):
         self.space = ode.Space()
         #        self.floor = ode.GeomPlane(self.space, floor, 0)
         self.create_floor()

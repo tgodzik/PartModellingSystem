@@ -4,14 +4,12 @@ from draw import Draw
 from OpenGL.GLUT import glutPostRedisplay
 
 class Simulation(object):
-
     fps = 50
     dt = 1.0 / fps
 
     def __init__(self, agents, boardSize, parameters):
-        
         self.max_iter = -1
-        
+
         if "func_fight" in parameters:
             Agent.fight = parameters["func_fight"]
 
@@ -20,10 +18,10 @@ class Simulation(object):
 
         if "func_breed" in parameters:
             Agent.breed = parameters["func_breed"]
-            
+
         if "maximum_iterations" in parameters:
             self.max_iter = parameters["maximum_iterations"]
-            
+
         if "func_create" in parameters:
             Agent.create_agent = parameters["func_create"]
 
@@ -32,7 +30,6 @@ class Simulation(object):
         else:
             floor = (0, 1, 0)
 
-        
         self.iter = 0
         self.boardSize = boardSize
         self.create_world()
@@ -48,23 +45,47 @@ class Simulation(object):
         self.newAgentNumber = agents
 
     def create_world(self):
-
         self.world = ode.World()
         self.world.setGravity((0, -9.81, 0))
         self.world.setERP(0.8)
         self.world.setCFM(1E-5)
 
-    def create_environment(self,floor):
 
+    def create_floor(self):
+        # Create a trimesh geom for collision detection
+        self.vertices = [(self.boardSize / 2, -1.0, self.boardSize / 2),
+                         (0.0, -1.0, self.boardSize / 2),
+                         (-self.boardSize / 2, 1.0, self.boardSize / 2),
+                         (-self.boardSize / 2, 1.0, 0.0),
+                         (-self.boardSize / 2, 0.0, -self.boardSize / 2),
+                         (0.0, 0.0, -self.boardSize / 2),
+                         (self.boardSize / 2, 0.0, -self.boardSize / 2),
+                         (self.boardSize / 2, 0.0, 0.0),
+                         (0.0, 1.0, 0.0)
+        ]
+
+        self.indices = [(0, 8, 1),
+                        (1, 8, 2),
+                        (2, 8, 3),
+                        (3, 8, 4),
+                        (4, 8, 5),
+                        (5, 8, 6),
+                        (6, 8, 7),
+                        (7, 8, 0)]
+        td = ode.TriMeshData()
+        td.build(self.vertices, self.indices)
+        self.floor = ode.GeomTriMesh(td, self.space)
+
+    def create_environment(self, floor):
         self.space = ode.Space()
-        self.floor = ode.GeomPlane(self.space, floor, 0)
-        self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.boardSize/2)
-        self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -self.boardSize/2)
-        self.wall3 = ode.GeomPlane(self.space, (0, 0, -1), -self.boardSize/2)
-        self.wall4 = ode.GeomPlane(self.space, (0, 0, 1), -self.boardSize/2)
+        #        self.floor = ode.GeomPlane(self.space, floor, 0)
+        self.create_floor()
+        self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.boardSize / 2)
+        self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -self.boardSize / 2)
+        self.wall3 = ode.GeomPlane(self.space, (0, 0, -1), -self.boardSize / 2)
+        self.wall4 = ode.GeomPlane(self.space, (0, 0, 1), -self.boardSize / 2)
 
     def near_callback(self, args, geom1, geom2):
-
         body1, body2 = geom1.getBody(), geom2.getBody()
 
         if (body1 is None):
@@ -76,7 +97,7 @@ class Simulation(object):
             return
 
         contacts = ode.collide(geom1, geom2)
-        
+
         if body1 is not None and contacts:
             velocity = body1.getLinearVel()
             body1.agent.direction = (max(min(velocity[0], 1.0), -1.0), 0.0, max(min(velocity[2], 1.0), -1.0))
@@ -86,30 +107,26 @@ class Simulation(object):
             body2.agent.direction = (max(min(velocity[0], 1.0), -1.0), 0.0, max(min(velocity[2], 1.0), -1.0))
 
         if body1 is not None and body2 is not None and contacts:
-
             if random.random() < 0.9:
                 body1.agent.fight(body2.agent)
             else:
                 body1.agent.breed(body2.agent)
 
         for c in contacts:
-
             c.setBounce(0.3)
             c.setMu(100)
             j = ode.ContactJoint(self.world, self.contactJoints, c)
             j.attach(body1, body2)
 
     def __str__(self):
-
         result = ""
 
         for agent in self.agents:
             result += str(agent) + "\n"
-            
+
         return result + "Total: " + str(len(self.agents)) + " agents in environment\n"
 
     def idle(self):
-
         t = self.dt - (time.time() - self.lasttime)
 
         if (t > 0):
@@ -150,13 +167,11 @@ class Simulation(object):
         self.lasttime = time.time()
 
     def run(self):
-
         self.no_graphics = False
         self.lasttime = time.time()
         self.draw = Draw(self)
 
     def run_without_graphics(self):
-
         self.lasttime = time.time()
         self.no_graphics = True
 

@@ -83,7 +83,8 @@ class Draw(object):
 
         self.render()
 
-        self.draw_floor(self.sim.floor)
+#        self.draw_floor(self.sim.floor)
+        self.draw_mesh_floor()
 
         if self.drawWalls:
             self.draw_wall(self.sim.wall1)
@@ -127,34 +128,34 @@ class Draw(object):
         glRotatef(self.yrot, 0.0, 1.0, 0.0)
         glTranslated(-self.xpos, -self.ypos, -self.zpos)
 
-    def draw_floor(self, floor, color=(0.7, 1.0, 0.7)):
-
-        normal, d = floor.getParams()
-        glPushMatrix()
-
-        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, color)
-
-        glBegin(GL_QUADS)
-
-        glNormal3f(*normal)
-        d = (normal[0]*self.sim.boardSize/2+normal[2]*self.sim.boardSize/2)/normal[1]
-        glVertex3f(-self.sim.boardSize/2, d, -self.sim.boardSize/2)
-
-        glNormal3f(*normal)
-        d = (-normal[0]*self.sim.boardSize/2+normal[2]*self.sim.boardSize/2)/normal[1]
-        glVertex3f(self.sim.boardSize/2, d, -self.sim.boardSize/2)
-
-        glNormal3f(*normal)
-        d = (-normal[0]*self.sim.boardSize/2-normal[2]*self.sim.boardSize/2)/normal[1]
-        glVertex3f(self.sim.boardSize/2, d, self.sim.boardSize/2)
-
-        glNormal3f(*normal)
-        d = (normal[0]*self.sim.boardSize/2-normal[2]*self.sim.boardSize/2)/normal[1]
-        glVertex3f(-self.sim.boardSize/2, d, self.sim.boardSize/2)
-
-        glEnd()
-
-        glPopMatrix()
+#    def draw_floor(self, floor, color=(0.7, 1.0, 0.7)):
+#
+#        normal, d = floor.getParams()
+#        glPushMatrix()
+#
+#        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, color)
+#
+#        glBegin(GL_QUADS)
+#
+#        glNormal3f(*normal)
+#        d = (normal[0]*self.sim.boardSize/2+normal[2]*self.sim.boardSize/2)/normal[1]
+#        glVertex3f(-self.sim.boardSize/2, d, -self.sim.boardSize/2)
+#
+#        glNormal3f(*normal)
+#        d = (-normal[0]*self.sim.boardSize/2+normal[2]*self.sim.boardSize/2)/normal[1]
+#        glVertex3f(self.sim.boardSize/2, d, -self.sim.boardSize/2)
+#
+#        glNormal3f(*normal)
+#        d = (-normal[0]*self.sim.boardSize/2-normal[2]*self.sim.boardSize/2)/normal[1]
+#        glVertex3f(self.sim.boardSize/2, d, self.sim.boardSize/2)
+#
+#        glNormal3f(*normal)
+#        d = (normal[0]*self.sim.boardSize/2-normal[2]*self.sim.boardSize/2)/normal[1]
+#        glVertex3f(-self.sim.boardSize/2, d, self.sim.boardSize/2)
+#
+#        glEnd()
+#
+#        glPopMatrix()
 
     def draw_wall(self, wall, color=(0.7, 1.0, 0.7)):
 
@@ -199,6 +200,21 @@ class Draw(object):
 
             glEnd()
 
+        glPopMatrix()
+
+    def draw_mesh_floor(self,color=(0.7, 1.0, 0.7)):
+
+        glPushMatrix()
+        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, color)
+        geom = self.sim.floor
+        glBegin(GL_TRIANGLES)
+        for i in range(geom.getTriangleCount()):
+            v0, v1, v2 = geom.getTriangle(i)
+            #print i, v0, v1, v2
+            glVertex3fv(v0)
+            glVertex3fv(v2)
+            glVertex3fv(v1)
+        glEnd()
         glPopMatrix()
 
     def draw_agent(self, agent):

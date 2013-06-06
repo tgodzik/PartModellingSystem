@@ -58,6 +58,6 @@ if __name__ == '__main__':
         "vertices": VERTICES
     }
 
-    sim = Simulation(20, board_size, parameters)
+    sim = Simulation(25, board_size, parameters)
     sim.run()
     #sim.run_without_graphics()

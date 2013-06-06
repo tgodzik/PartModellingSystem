@@ -81,7 +81,7 @@ class Agent(object):
 
         self.geom.setBody(self.body)
 
-        self.body.setPosition((random.uniform(-5, 5), random.uniform(2, 5), random.uniform(-5, 5)))
+        self.body.setPosition((random.uniform(-5, 5), random.uniform(4, 5), random.uniform(-5, 5)))
 
         theta = 0
         ct = math.cos(theta)

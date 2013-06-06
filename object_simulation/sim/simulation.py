@@ -9,7 +9,7 @@ class Simulation(object):
     fps = 50
     dt = 1.0 / fps
 
-    def __init__(self, agents, boardSize, parameters = []):
+    def __init__(self, agents, boardSize, parameters=[]):
 
         self.iter = 0
         self.max_iter = -1
@@ -123,7 +123,7 @@ class Simulation(object):
         return result + "Total: " + str(len(self.agents)) + " agents in environment\n"
 
     def idle(self):
-        
+
         t = self.dt - (time.time() - self.lasttime)
 
         if (t > 0):

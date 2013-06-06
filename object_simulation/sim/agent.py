@@ -44,7 +44,7 @@ class Agent(object):
 
     def inherit_sizes(self, agent1, agent2):
 
-        self.sizes={}
+        self.sizes = {}
 
         if (self.shape == self.SHAPE_BOX):
             self.sizes = {'lx': self.get_one(agent1.sizes['lx'], agent2.sizes['lx']), 'ly': self.get_one(agent1.sizes['ly'], agent2.sizes['ly']), 'lz': self.get_one(agent1.sizes['lz'], agent2.sizes['lz'])}

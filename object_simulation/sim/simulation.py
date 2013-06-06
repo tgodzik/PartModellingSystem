@@ -5,11 +5,15 @@ from OpenGL.GLUT import glutPostRedisplay
 
 
 class Simulation(object):
+
     fps = 50
     dt = 1.0 / fps
 
-    def __init__(self, agents, boardSize, parameters):
+    def __init__(self, agents, boardSize, parameters=[]):
+
+        self.iter = 0
         self.max_iter = -1
+        self.boardSize = boardSize
 
         if "func_fight" in parameters:
             Agent.fight = parameters["func_fight"]
@@ -25,8 +29,6 @@ class Simulation(object):
 
         if "func_create" in parameters:
             Agent.create_agent = parameters["func_create"]
-
-        self.boardSize = boardSize
 
         if "vertices" in parameters:
             self.vertices = parameters["vertices"]
@@ -44,12 +46,7 @@ class Simulation(object):
         if "indices" in parameters:
             self.indices = parameters["indices"]
         else:
-            self.indices = [(0, 8, 1), (1, 8, 2), (2, 8, 3), (3, 8, 4),
-                            (4, 8, 5),
-                            (5, 8, 6),
-                            (6, 8, 7),
-                            (7, 8, 0)]
-        self.iter = 0
+            self.indices = [(0, 8, 1), (1, 8, 2), (2, 8, 3), (3, 8, 4), (4, 8, 5), (5, 8, 6), (6, 8, 7), (7, 8, 0)]
 
         self.create_world()
         self.create_environment()
@@ -69,19 +66,13 @@ class Simulation(object):
         self.world.setERP(0.8)
         self.world.setCFM(1E-5)
 
-
     def create_floor(self):
-        # Create a trimesh geom for collision detection
-
-
-
         td = ode.TriMeshData()
         td.build(self.vertices, self.indices)
         self.floor = ode.GeomTriMesh(td, self.space)
 
     def create_environment(self):
         self.space = ode.Space()
-        #        self.floor = ode.GeomPlane(self.space, floor, 0)
         self.create_floor()
         self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.boardSize / 2)
         self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -self.boardSize / 2)
@@ -89,6 +80,7 @@ class Simulation(object):
         self.wall4 = ode.GeomPlane(self.space, (0, 0, 1), -self.boardSize / 2)
 
     def near_callback(self, args, geom1, geom2):
+
         body1, body2 = geom1.getBody(), geom2.getBody()
 
         if (body1 is None):
@@ -122,6 +114,7 @@ class Simulation(object):
             j.attach(body1, body2)
 
     def __str__(self):
+
         result = ""
 
         for agent in self.agents:
@@ -130,6 +123,7 @@ class Simulation(object):
         return result + "Total: " + str(len(self.agents)) + " agents in environment\n"
 
     def idle(self):
+
         t = self.dt - (time.time() - self.lasttime)
 
         if (t > 0):
@@ -169,14 +163,13 @@ class Simulation(object):
 
         self.lasttime = time.time()
 
-    def run(self):
-        self.no_graphics = False
-        self.lasttime = time.time()
-        self.draw = Draw(self)
+    def run(self, draw=True):
 
-    def run_without_graphics(self):
+        self.no_graphics = not draw
         self.lasttime = time.time()
-        self.no_graphics = True
 
-        while True:
-            self.idle()
+        if not self.no_graphics:
+            self.draw = Draw(self)
+        else:
+            while True:
+                self.idle()

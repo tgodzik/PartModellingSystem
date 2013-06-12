@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-from sim.simulation import Simulation
-
+from sim.simulation import Simulation,Configuration
+from sim.agent import Sphere
 def fight(object, other):
 
     fit1 = object.fitness()
@@ -21,7 +21,8 @@ board_size = 20
 
 
 if __name__ == '__main__':
+    configuration=Configuration(20,15.0,Sphere)
 
-    sim = Simulation()
+    sim = Simulation(configuration)
     #sim.run()
     sim.run()

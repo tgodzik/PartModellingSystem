@@ -1,11 +1,14 @@
 import ode, random, math
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
 
 def pick_one(value1, value2):
     return value1 if random.random() > 0.5 else value2
 
 
 class Shape:
-    def generate_random(self):
+    def generate_random_sizes(self):
         raise NotImplementedError()
 
     def create_mass(self, mass):
@@ -15,6 +18,9 @@ class Shape:
         raise NotImplementedError()
 
     def create_new_size(self, shape1,shape2):
+        raise NotImplementedError()
+
+    def draw_shape(self):
         raise NotImplementedError()
 
     def get_size(self):
@@ -23,16 +29,13 @@ class Shape:
 
 class Box(Shape):
     def __init__(self):
-        pass
+        self.generate_random_sizes()
 
-    def generate_random(self):
+    def generate_random_sizes(self):
         self.sizes = {'lx': random.uniform(0.2, 1), 'ly': random.uniform(0.2, 1), 'lz': random.uniform(0.2, 1)}
-        self.color = (random.random(), random.random(), random.random())
-        self.density = 1000
 
-
-    def create_mass(self, mass):
-        mass.setBox(self.density, self.sizes['lx'], self.sizes['ly'], self.sizes['lz'])
+    def create_mass(self, mass,density):
+        mass.setBox(density, self.sizes['lx'], self.sizes['ly'], self.sizes['lz'])
 
     def create_geom(self, space):
         return ode.GeomBox(space, lengths=(self.sizes['lx'], self.sizes['ly'], self.sizes['lz']))
@@ -41,35 +44,38 @@ class Box(Shape):
         self.sizes = {'lx': pick_one(shape1.sizes['lx'], shape2.sizes['lx']),
                       'ly': pick_one(shape1.sizes['ly'], shape2.sizes['ly']),
                       'lz': pick_one(shape1.sizes['lz'], shape2.sizes['lz'])}
-        self.color = (pick_one(shape1.color[0], shape2.color[0]),
-                      pick_one(shape1.color[1], shape2.color[1]),
-                      pick_one(shape1.color[2], shape2.color[2]))
-        self.density = 1000
+
+
+    def draw_shape(self):
+        sizes = self.sizes
+        glScalef(sizes['lx'], sizes['ly'], sizes['lz'])
+        glutSolidCube(1)
 
     def get_size(self):
         return self.sizes['lx'] * self.sizes['ly'] * self.sizes['lz']
 
+
 class Sphere(Shape):
     def __init__(self):
-        pass
+        self.generate_random_sizes()
 
-    def generate_random(self):
+    def generate_random_sizes(self):
         self.sizes = {'radius': random.uniform(0.2, 0.5)}
-        self.color = (random.random(), random.random(), random.random())
-        self.density = 1000
 
-    def create_mass(self, mass):
-        mass.setSphere(self.density, self.sizes['radius'])
+    def create_mass(self, mass,density):
+        mass.setSphere(density, self.sizes['radius'])
 
     def create_geom(self, space):
         return ode.GeomSphere(space, self.sizes['radius'])
 
     def create_new_size(self, shape1, shape2):
         self.sizes = {'radius': pick_one(shape1.sizes['radius'], shape2.sizes['radius'])}
-        self.color = (pick_one(shape1.color[0], shape2.color[0]),
-                      pick_one(shape1.color[1], shape2.color[1]),
-                      pick_one(shape1.color[2], shape2.color[2]))
-        self.density = 1000
+
+    def draw_shape(self):
+        sizes=self.sizes
+        d = sizes['radius'] * 2
+        glScalef(d, d, d)
+        glutSolidSphere(sizes['radius'], 32, 32)
 
     def get_size(self):
         return math.pi * self.sizes['radius'] * self.sizes['radius'] * self.sizes['radius'] * 4 / 3
@@ -77,15 +83,13 @@ class Sphere(Shape):
 
 class Cylinder(Shape):
     def __init__(self):
-        pass
+        self.generate_random_sizes()
 
-    def generate_random(self):
+    def generate_random_sizes(self):
         self.sizes = {'radius': random.uniform(0.2, 0.5), 'height': random.uniform(0.2, 0.5)}
-        self.color = (random.random(), random.random(), random.random())
-        self.density = 1000
 
-    def create_mass(self, mass):
-        mass.setCylinder(self.density, 1, self.sizes['radius'], self.sizes['height'])
+    def create_mass(self, mass,density):
+        mass.setCylinder(density, 1, self.sizes['radius'], self.sizes['height'])
 
     def create_geom(self, space):
         return ode.GeomCylinder(space, self.sizes['radius'], self.sizes['height'])
@@ -93,44 +97,55 @@ class Cylinder(Shape):
     def create_new_size(self,shape1 ,shape2):
         self.sizes = {'radius': pick_one(shape1.sizes['radius'], shape2.sizes['radius']),
                       'height': pick_one(shape1.sizes['height'], shape2.sizes['height'])}
-        self.color = (pick_one(shape1.color[0], shape2.color[0]),
-                      pick_one(shape1.color[1], shape2.color[1]),
-                      pick_one(shape1.color[2], shape2.color[2]))
-        self.density = 1000
-        
+
     def get_size(self):
         return math.pi * self.sizes['radius'] * self.sizes['radius'] * self.sizes['height']
 
+    def draw_shape(self):
+        sizes=self.sizes
+        d = sizes['radius'] * 2
+        glScalef(sizes['height'], d, d)
+        glutSolidCylinder(sizes['radius'], sizes['height'], 32, 32)
+
+
 class Agent:
 
-    def __init__(self, sim, number, parent1=None,parent2=None):
+    def __init__(self, sim, number, shape_class, parent1=None,parent2=None):
         """
         Constructor
         """
         self.sim = sim
         self.number = number
-        self.shape = Sphere()
+
+        #class for shape
+        self.shape = shape_class()
+
+        #by deafault all parameters are random
         self.direction = ((random.random() * 2) - 1, 0.0, (random.random() * 2) - 1)
+        self.density = 1000
 
         if parent1 is  None and parent2 is  None:
-            self.shape.generate_random()
             self.create_geometry()
-            self.energy = random.randint(1000, 1500)
+            self.color = (random.random(), random.random(), random.random())
+            self.energy=random.randint(1000, 1500)
 
         else:
             self.shape.create_new_size(parent1.shape,parent2.shape)
-            self.energy = 400
             self.sim.agents_to_add.append(self)
             self.sim.newAgentNumber += 1
 
-
+            self.color = (pick_one(parent1.color[0], parent2.color[0]),
+                          pick_one(parent1.color[1], parent2.color[1]),
+                          pick_one(parent1.color[2], parent2.color[2]))
+            self.energy = 400
 
 
     def create_geometry(self):
         self.body = ode.Body(self.sim.world)
         self.body.agent = self
+
         M=ode.Mass()
-        self.shape.create_mass(M)
+        self.shape.create_mass(M,self.density)
         self.body.setMass(M)
 
         self.geom = self.shape.create_geom(self.sim.space)
@@ -163,7 +178,8 @@ class Agent:
         if self.energy > 400 and other.energy > 400:
             self.energy -= 200
             other.energy -= 200
-            newAgent = Agent(self.sim, self.sim.newAgentNumber, self,other)
+            newAgent = Agent(self.sim, self.sim.newAgentNumber,self.shape.__class__, self,other)
+
 
     def fitness(self):
         """

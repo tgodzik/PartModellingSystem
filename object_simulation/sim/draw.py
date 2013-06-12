@@ -189,21 +189,9 @@ class Draw:
 
         glPushMatrix()
         glMultMatrixd(rot)
-        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, agent.shape.color)
+        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, agent.color)
         sizes = agent.shape.sizes
 
-        if isinstance(agent.shape, Box):
-            glScalef(sizes['lx'], sizes['ly'], sizes['lz'])
-            glutSolidCube(1)
-
-        elif isinstance(agent.shape, Sphere):
-            d = sizes['radius'] * 2
-            glScalef(d, d, d)
-            glutSolidSphere(sizes['radius'], 32, 32)
-
-        elif isinstance(agent.shape, Cylinder):
-            d = sizes['radius'] * 2
-            glScalef(sizes['height'], d, d)
-            glutSolidCylinder(sizes['radius'], sizes['height'], 32, 32)
+        agent.shape.draw_shape()
 
         glPopMatrix()

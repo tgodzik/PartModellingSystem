@@ -38,7 +38,7 @@ class Configuration:
     def set_max_iterations(self,iter):
         self.max_iter=iter
 
-    def setup_agent(self):
+    def setup_simulation(self):
         if "function_fitness" in self.functions:
             Agent.fitness=self.functions["function_fitness"]
         if "function_breed" in self.functions:
@@ -47,6 +47,10 @@ class Configuration:
             Agent.fight=self.functions["function_fight"]
         if "function_move" in self.functions:
             Agent.move=self.functions["function_move"]
+        if "function_encounter" in self.functions:
+            Simulation.encounter=self.functions["function_encounter"]
+        if "function_touch" in self.functions:
+            Simulation.touch=self.functions["function_touch"]
 
     def function_move(self,function):
         self.functions["function_move"]=function
@@ -59,6 +63,12 @@ class Configuration:
 
     def function_fitness(self,function):
         self.functions["function_fitness"]=function
+
+    def function_touch(self,function):
+        self.functions["function_touch"]=function
+
+    def function_encounter(self,function):
+        self.functions["function_encounter"]=function
 
 class Simulation:
     """
@@ -79,7 +89,7 @@ class Simulation:
         self.iter = 0
         self.board_size = configuration.board_size
 
-        configuration.setup_agent()
+        configuration.setup_simulation()
 
         self.max_iter = configuration.max_iter
 
@@ -95,7 +105,7 @@ class Simulation:
         self.agents_to_add = []
 
         for i in range(configuration.agents):
-            self.agents.append(Agent(self, i))
+            self.agents.append(Agent(self, i,configuration.object_type))
 
         self.newAgentNumber = configuration.agents
 
@@ -126,10 +136,10 @@ class Simulation:
         """
         self.space = ode.Space()
         self.create_floor()
-        self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.board_size / 2)
-        self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -self.board_size / 2)
-        self.wall3 = ode.GeomPlane(self.space, (0, 0, -1), -self.board_size / 2)
-        self.wall4 = ode.GeomPlane(self.space, (0, 0, 1), -self.board_size / 2)
+        self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.board_size / 2.0)
+        self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -self.board_size / 2.0)
+        self.wall3 = ode.GeomPlane(self.space, (0, 0, -1), -self.board_size / 2.0)
+        self.wall4 = ode.GeomPlane(self.space, (0, 0, 1), -self.board_size / 2.0)
 
     def near_callback(self, args, geom1, geom2):
         """
@@ -163,16 +173,26 @@ class Simulation:
             self.encounter(body1, body2)
 
         for c in contacts:
-            c.setBounce(0.3)
-            c.setMu(100)
+            self.touch(c,body1,body2)
             j = ode.ContactJoint(self.world, self.contactJoints, c)
             j.attach(body1, body2)
 
     def encounter(self, body1, body2):
+        """
+        What to do when to bodies encounter each other
+        """
         if random.random() < 0.9:
             body1.agent.fight(body2.agent)
         else:
             body1.agent.breed(body2.agent)
+
+
+    def touch(self,contact,body1,body2):
+        """
+        What to do on touching surfaces
+        """
+        contact.setBounce(0.3)
+        contact.setMu(100)
 
     def __str__(self):
         result = ""

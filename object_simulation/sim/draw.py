@@ -1,13 +1,11 @@
-from agent import Agent
+from agent import *
 from math import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 class Draw:
-
     def __init__(self, sim):
-
         self.sim = sim
         self.init_openGl()
         self.init_camera()
@@ -17,11 +15,10 @@ class Draw:
         glutSpecialFunc(self.special_key_callback);
         glutDisplayFunc(self.draw)
         glutReshapeFunc(self.reshape)
-        glutIdleFunc(self.sim.idle)
+        glutIdleFunc(self.sim.main_loop)
         glutMainLoop()
 
     def init_openGl(self):
-
         glutInit([])
         glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE)
 
@@ -30,7 +27,6 @@ class Draw:
         glutCreateWindow("Simulation window")
 
     def init_camera(self):
-
         self.xpos = 0
         self.ypos = 0
         self.zpos = 0
@@ -40,7 +36,6 @@ class Draw:
         self.eyeY = 4.5
 
     def key_callback(self, c, x, y):
-
         if (c == '\x1b'):
             sys.exit(0)
         elif (c == 'i'):
@@ -49,36 +44,31 @@ class Draw:
             self.drawWalls = not self.drawWalls
 
     def special_key_callback(self, c, x, y):
-
         if (c == GLUT_KEY_RIGHT):
-
             self.yrot += 10;
             if (self.yrot > 360):
                 self.yrot -= 360
 
         elif (c == GLUT_KEY_LEFT):
-
             self.yrot -= 10;
             if (self.yrot < -360):
                 self.yrot += 360
 
         elif (c == GLUT_KEY_UP):
-
             yrotrad = (self.yrot / 180 * pi)
             xrotrad = (self.xrot / 180 * pi)
 
-            self.xpos += sin(yrotrad)/10
-            self.zpos -= cos(yrotrad)/10
-            self.ypos -= sin(xrotrad)/10
+            self.xpos += sin(yrotrad) / 10
+            self.zpos -= cos(yrotrad) / 10
+            self.ypos -= sin(xrotrad) / 10
 
         elif (c == GLUT_KEY_DOWN):
-
             yrotrad = (self.yrot / 180 * pi)
             xrotrad = (self.xrot / 180 * pi)
 
-            self.xpos -= sin(yrotrad)/10
-            self.zpos += cos(yrotrad)/10
-            self.ypos += sin(xrotrad)/10
+            self.xpos -= sin(yrotrad) / 10
+            self.zpos += cos(yrotrad) / 10
+            self.ypos += sin(xrotrad) / 10
 
         elif (c == GLUT_KEY_PAGE_DOWN):
             self.eyeY -= 1
@@ -87,7 +77,6 @@ class Draw:
             self.eyeY += 1
 
     def draw(self):
-
         self.render()
         self.draw_mesh_floor()
 
@@ -106,7 +95,6 @@ class Draw:
         glViewport(0, 0, w, h)
 
     def render(self):
-        
         glClearColor(0.8, 0.8, 0.9, 0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST)
@@ -134,52 +122,48 @@ class Draw:
         glEnable(GL_LIGHT0)
 
     def draw_wall(self, wall, color=(0.7, 1.0, 0.7)):
-
         normal, d = wall.getParams()
         glPushMatrix()
 
         glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, color)
 
         if normal[0]:
-
             glBegin(GL_QUADS)
 
             glNormal3f(*normal)
-            glVertex3f(d*normal[0], -5.0, -self.sim.board_size/2)
+            glVertex3f(d * normal[0], -5.0, -self.sim.board_size / 2)
 
             glNormal3f(*normal)
-            glVertex3f(d*normal[0], -5.0, self.sim.board_size/2)
+            glVertex3f(d * normal[0], -5.0, self.sim.board_size / 2)
 
             glNormal3f(*normal)
-            glVertex3f(d*normal[0], 5.0, self.sim.board_size/2)
+            glVertex3f(d * normal[0], 5.0, self.sim.board_size / 2)
 
             glNormal3f(*normal)
-            glVertex3f(d*normal[0], 5.0, -self.sim.board_size/2)
+            glVertex3f(d * normal[0], 5.0, -self.sim.board_size / 2)
 
             glEnd()
 
         if normal[2]:
-
             glBegin(GL_QUADS)
 
             glNormal3f(*normal)
-            glVertex3f(-self.sim.board_size/2, -5.0,d*normal[2] )
+            glVertex3f(-self.sim.board_size / 2, -5.0, d * normal[2])
 
             glNormal3f(*normal)
-            glVertex3f(self.sim.board_size/2, -5.0,d*normal[2] )
+            glVertex3f(self.sim.board_size / 2, -5.0, d * normal[2])
 
             glNormal3f(*normal)
-            glVertex3f(self.sim.board_size/2 , 5.0,d*normal[2] )
+            glVertex3f(self.sim.board_size / 2, 5.0, d * normal[2])
 
             glNormal3f(*normal)
-            glVertex3f( -self.sim.board_size/2, 5.0,d*normal[2])
+            glVertex3f(-self.sim.board_size / 2, 5.0, d * normal[2])
 
             glEnd()
 
         glPopMatrix()
 
-    def draw_mesh_floor(self,color=(0.7, 1.0, 0.7)):
-
+    def draw_mesh_floor(self, color=(0.7, 1.0, 0.7)):
         glPushMatrix()
         glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, color)
         geom = self.sim.floor
@@ -196,28 +180,30 @@ class Draw:
         glPopMatrix()
 
     def draw_agent(self, agent):
-
         x, y, z = agent.body.getPosition()
         R = agent.body.getRotation()
         rot = [R[0], R[3], R[6], 0.,
-            R[1], R[4], R[7], 0.,
-            R[2], R[5], R[8], 0.,
-            x, y, z, 1.0]
-        
+               R[1], R[4], R[7], 0.,
+               R[2], R[5], R[8], 0.,
+               x, y, z, 1.0]
+
         glPushMatrix()
         glMultMatrixd(rot)
-        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, agent.color)
+        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, agent.shape.color)
+        sizes = agent.shape.sizes
 
-        if (agent.shape == Agent.SHAPE_BOX):
-            glScalef(agent.sizes['lx'], agent.sizes['ly'], agent.sizes['lz'])
+        if isinstance(agent.shape, Box):
+            glScalef(sizes['lx'], sizes['ly'], sizes['lz'])
             glutSolidCube(1)
-        elif (agent.shape == Agent.SHAPE_SPHERE):
-            d = agent.sizes['radius']*2
+
+        elif isinstance(agent.shape, Sphere):
+            d = sizes['radius'] * 2
             glScalef(d, d, d)
-            glutSolidSphere(agent.sizes['radius'], 32, 32)
-        elif (agent.shape == Agent.SHAPE_CYLINDER):
-            d = agent.sizes['radius']*2
-            glScalef(agent.sizes['height'], d, d)
-            glutSolidCylinder(agent.sizes['radius'], agent.sizes['height'], 32, 32)
+            glutSolidSphere(sizes['radius'], 32, 32)
+
+        elif isinstance(agent.shape, Cylinder):
+            d = sizes['radius'] * 2
+            glScalef(sizes['height'], d, d)
+            glutSolidCylinder(sizes['radius'], sizes['height'], 32, 32)
 
         glPopMatrix()

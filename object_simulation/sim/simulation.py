@@ -1,16 +1,20 @@
 import ode, time, random
-from agent import Agent
+from agent import *
 from draw import Draw
 from OpenGL.GLUT import glutPostRedisplay
-
+from collections import defaultdict
 
 class Configuration:
-    def __init__(self, agents=20, board_size=12,object_type=Agent.SHAPE_SPHERE,(vertices,indices)=(None,None)):
+    def __init__(self, agents=20, board_size=12,object_type=Sphere,(vertices,indices)=(None,None)):
+
         #setting simple parameters
         self.agents = agents
         self.board_size = board_size
         self.object_type=object_type
+        self.max_iter = -1
+        #floor parameters
         if not vertices or not indices:
+
             self.vertices = [(board_size / 2, -1.0, board_size / 2),
                          (0.0, -1.0, board_size / 2),
                          (-board_size / 2, 1.0, board_size / 2),
@@ -28,10 +32,33 @@ class Configuration:
 
 
         #setting function parameters
-        self.fight_function = Agent.fight
-        self.breed_function = Agent.breed
-        self.fitness_function=Agent.fitness
+        self.functions={}
 
+
+    def set_max_iterations(self,iter):
+        self.max_iter=iter
+
+    def setup_agent(self):
+        if "function_fitness" in self.functions:
+            Agent.fitness=self.functions["function_fitness"]
+        if "function_breed" in self.functions:
+            Agent.breed=self.functions["function_breed"]
+        if "function_fight" in self.functions:
+            Agent.fight=self.functions["function_fight"]
+        if "function_move" in self.functions:
+            Agent.move=self.functions["function_move"]
+
+    def function_move(self,function):
+        self.functions["function_move"]=function
+
+    def function_fight(self,function):
+        self.functions["function_fight"]=function
+
+    def function_breed(self,function):
+        self.functions["function_breed"]=function
+
+    def function_fitness(self,function):
+        self.functions["function_fitness"]=function
 
 class Simulation:
     """
@@ -43,46 +70,22 @@ class Simulation:
     dt = 1.0 / fps
 
 
-    def __init__(self, parameters=[], configuration=Configuration()):
+    def __init__(self, configuration=Configuration()):
         """
-        :type boardSize: int - size of the board
-        :type agents: int - number of initial agents
-        :type parameters: dict - all simulation parameters
+        :type configuration: Configuration - simulation configuration
         """
 
+        #current iteration number
         self.iter = 0
-        self.max_iter = -1
         self.board_size = configuration.board_size
 
-        Agent.fight = configuration.fight_function
+        configuration.setup_agent()
 
-        Agent.fitness = configuration.fitness_function
+        self.max_iter = configuration.max_iter
 
-        Agent.breed = configuration.breed_function
+        self.vertices = configuration.vertices
 
-        if "maximum_iterations" in parameters:
-            self.max_iter = parameters["maximum_iterations"]
-
-        if "func_create" in parameters:
-            Agent.create_agent = parameters["func_create"]
-
-        if "vertices" in parameters:
-            self.vertices = parameters["vertices"]
-        else:
-            self.vertices = [(self.board_size / 2, -1.0, self.board_size / 2),
-                             (0.0, -1.0, self.board_size / 2),
-                             (-self.board_size / 2, 1.0, self.board_size / 2),
-                             (-self.board_size / 2, 1.0, 0.0),
-                             (-self.board_size / 2, 0.0, -self.board_size / 2),
-                             (0.0, 0.0, -self.board_size / 2),
-                             (self.board_size / 2, -1.0, -self.board_size / 2),
-                             (self.board_size / 2, 0.0, 0.0),
-                             (0.0, 1.0, 0.0)]
-
-        if "indices" in parameters:
-            self.indices = parameters["indices"]
-        else:
-            self.indices = [(0, 8, 1), (1, 8, 2), (2, 8, 3), (3, 8, 4), (4, 8, 5), (5, 8, 6), (6, 8, 7), (7, 8, 0)]
+        self.indices = configuration.indices
 
         self.create_world()
         self.create_environment()
@@ -92,9 +95,13 @@ class Simulation:
         self.agents_to_add = []
 
         for i in range(configuration.agents):
-            self.agents.append(Agent(self, i, configuration.object_type))
+            self.agents.append(Agent(self, i))
 
         self.newAgentNumber = configuration.agents
+
+    def set_fps(self,new_fps):
+        self.fps=new_fps
+        self.dt=1/self.fps
 
     def create_world(self):
         """
@@ -175,9 +182,13 @@ class Simulation:
 
         return result + "Total: " + str(len(self.agents)) + " agents in environment\n"
 
-    def idle(self):
+    def main_loop(self):
+        """
+        Function responsible for main simulation loop
+        """
         t = self.dt - (time.time() - self.lasttime)
 
+        # check if we need to do anything, dt
         if (t > 0):
             time.sleep(t)
 
@@ -223,4 +234,4 @@ class Simulation:
             self.draw = Draw(self)
         else:
             while True:
-                self.idle()
+                self.main_loop()

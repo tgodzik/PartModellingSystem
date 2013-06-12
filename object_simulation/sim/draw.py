@@ -145,16 +145,16 @@ class Draw:
             glBegin(GL_QUADS)
 
             glNormal3f(*normal)
-            glVertex3f(d*normal[0], -5.0, -self.sim.boardSize/2)
+            glVertex3f(d*normal[0], -5.0, -self.sim.board_size/2)
 
             glNormal3f(*normal)
-            glVertex3f(d*normal[0], -5.0, self.sim.boardSize/2)
+            glVertex3f(d*normal[0], -5.0, self.sim.board_size/2)
 
             glNormal3f(*normal)
-            glVertex3f(d*normal[0], 5.0, self.sim.boardSize/2)
+            glVertex3f(d*normal[0], 5.0, self.sim.board_size/2)
 
             glNormal3f(*normal)
-            glVertex3f(d*normal[0], 5.0, -self.sim.boardSize/2)
+            glVertex3f(d*normal[0], 5.0, -self.sim.board_size/2)
 
             glEnd()
 
@@ -163,16 +163,16 @@ class Draw:
             glBegin(GL_QUADS)
 
             glNormal3f(*normal)
-            glVertex3f(-self.sim.boardSize/2, -5.0,d*normal[2] )
+            glVertex3f(-self.sim.board_size/2, -5.0,d*normal[2] )
 
             glNormal3f(*normal)
-            glVertex3f(self.sim.boardSize/2, -5.0,d*normal[2] )
+            glVertex3f(self.sim.board_size/2, -5.0,d*normal[2] )
 
             glNormal3f(*normal)
-            glVertex3f(self.sim.boardSize/2 , 5.0,d*normal[2] )
+            glVertex3f(self.sim.board_size/2 , 5.0,d*normal[2] )
 
             glNormal3f(*normal)
-            glVertex3f( -self.sim.boardSize/2, 5.0,d*normal[2])
+            glVertex3f( -self.sim.board_size/2, 5.0,d*normal[2])
 
             glEnd()
 

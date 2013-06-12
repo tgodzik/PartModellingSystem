@@ -16,6 +16,11 @@ class Agent:
         self.shape = shape
         self.create_agent(breeded)
 
+        if breeded:
+            self.sim.agents_to_add.append(self)
+            self.sim.newAgentNumber += 1
+
+
     def create_agent(self, breeded):
 
         if not breeded:
@@ -113,8 +118,7 @@ class Agent:
             newAgent = Agent(self.sim, self.sim.newAgentNumber, self.shape, True)
             newAgent.create_parameters(self, other)
 
-            self.sim.agents_to_add.append(newAgent)
-            self.sim.newAgentNumber += 1
+
 
     def fitness(self):
         

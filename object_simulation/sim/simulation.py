@@ -3,32 +3,35 @@ from agent import Agent
 from draw import Draw
 from OpenGL.GLUT import glutPostRedisplay
 
+
 class Configuration:
+    def __init__(self, agents=20, board_size=12,object_type=Agent.SHAPE_SPHERE,(vertices,indices)=(None,None)):
+        #setting simple parameters
+        self.agents = agents
+        self.board_size = board_size
+        self.object_type=object_type
+        if not vertices or not indices:
+            self.vertices = [(board_size / 2, -1.0, board_size / 2),
+                         (0.0, -1.0, board_size / 2),
+                         (-board_size / 2, 1.0, board_size / 2),
+                         (-board_size / 2, 1.0, 0.0),
+                         (-board_size / 2, 0.0, -board_size / 2),
+                         (0.0, -1.0, -board_size / 2),
+                         (board_size / 2, -1.0, -board_size / 2),
+                         (board_size / 2, 0.0, 0.0),
+                         (board_size / 4, 1.0, board_size / 4),
+                         (-board_size / 4, 2.0, board_size / 4),
+                         (-board_size / 4, 0.0, -board_size / 4),
+                         (board_size / 4, -2.0, -board_size / 4),
+                         (0.0, 2.0, 0.0)]
+            self.indices = [(0, 8, 1),(1, 8, 12), (1, 9, 2), (1, 12, 9), (2, 9, 3), (9, 12, 3), (3, 12, 10), (3, 10, 4), (4, 10, 5), (12, 5, 10), (6, 5, 11), (11, 5, 12), (6, 11, 7), (7, 11, 12), (0, 7, 8), (8, 7, 12)]
 
-    def fight_function(self,other):
 
-        fit1 = self.fitness()
-        fit2 = other.fitness()
+        #setting function parameters
+        self.fight_function = Agent.fight
+        self.breed_function = Agent.breed
+        self.fitness_function=Agent.fitness
 
-        if fit1 > fit2:
-            self.energy += 100
-            other.energy -= 100
-        elif fit2 > fit1:
-            self.energy -= 100
-            other.energy += 100
-
-    def breed(self, other):
-
-        if self.energy > 400 and other.energy > 400:
-
-            self.energy -= 200
-            other.energy -= 200
-
-            newAgent = Agent(self.sim, self.sim.newAgentNumber, self.shape, True)
-            newAgent.create_parameters(self, other)
-
-            self.sim.agents_to_add.append(newAgent)
-            self.sim.newAgentNumber += 1
 
 class Simulation:
     """
@@ -40,7 +43,7 @@ class Simulation:
     dt = 1.0 / fps
 
 
-    def __init__(self, agents=20, boardSize=12, parameters=[]):
+    def __init__(self, parameters=[], configuration=Configuration()):
         """
         :type boardSize: int - size of the board
         :type agents: int - number of initial agents
@@ -49,16 +52,13 @@ class Simulation:
 
         self.iter = 0
         self.max_iter = -1
-        self.boardSize = boardSize
+        self.board_size = configuration.board_size
 
-        if "func_fight" in parameters:
-            Agent.fight = parameters["func_fight"]
+        Agent.fight = configuration.fight_function
 
-        if "func_fit" in parameters:
-            Agent.fitness = parameters["func_fit"]
+        Agent.fitness = configuration.fitness_function
 
-        if "func_breed" in parameters:
-            Agent.breed = parameters["func_breed"]
+        Agent.breed = configuration.breed_function
 
         if "maximum_iterations" in parameters:
             self.max_iter = parameters["maximum_iterations"]
@@ -69,14 +69,14 @@ class Simulation:
         if "vertices" in parameters:
             self.vertices = parameters["vertices"]
         else:
-            self.vertices = [(self.boardSize / 2, -1.0, self.boardSize / 2),
-                             (0.0, -1.0, self.boardSize / 2),
-                             (-self.boardSize / 2, 1.0, self.boardSize / 2),
-                             (-self.boardSize / 2, 1.0, 0.0),
-                             (-self.boardSize / 2, 0.0, -self.boardSize / 2),
-                             (0.0, 0.0, -self.boardSize / 2),
-                             (self.boardSize / 2, -1.0, -self.boardSize / 2),
-                             (self.boardSize / 2, 0.0, 0.0),
+            self.vertices = [(self.board_size / 2, -1.0, self.board_size / 2),
+                             (0.0, -1.0, self.board_size / 2),
+                             (-self.board_size / 2, 1.0, self.board_size / 2),
+                             (-self.board_size / 2, 1.0, 0.0),
+                             (-self.board_size / 2, 0.0, -self.board_size / 2),
+                             (0.0, 0.0, -self.board_size / 2),
+                             (self.board_size / 2, -1.0, -self.board_size / 2),
+                             (self.board_size / 2, 0.0, 0.0),
                              (0.0, 1.0, 0.0)]
 
         if "indices" in parameters:
@@ -91,10 +91,10 @@ class Simulation:
         self.agents = []
         self.agents_to_add = []
 
-        for i in range(agents):
-            self.agents.append(Agent(self, i, Agent.SHAPE_BOX))
+        for i in range(configuration.agents):
+            self.agents.append(Agent(self, i, configuration.object_type))
 
-        self.newAgentNumber = agents
+        self.newAgentNumber = configuration.agents
 
     def create_world(self):
         """
@@ -119,10 +119,10 @@ class Simulation:
         """
         self.space = ode.Space()
         self.create_floor()
-        self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.boardSize / 2)
-        self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -self.boardSize / 2)
-        self.wall3 = ode.GeomPlane(self.space, (0, 0, -1), -self.boardSize / 2)
-        self.wall4 = ode.GeomPlane(self.space, (0, 0, 1), -self.boardSize / 2)
+        self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.board_size / 2)
+        self.wall2 = ode.GeomPlane(self.space, (-1, 0, 0), -self.board_size / 2)
+        self.wall3 = ode.GeomPlane(self.space, (0, 0, -1), -self.board_size / 2)
+        self.wall4 = ode.GeomPlane(self.space, (0, 0, 1), -self.board_size / 2)
 
     def near_callback(self, args, geom1, geom2):
         """
@@ -153,7 +153,7 @@ class Simulation:
             body2.agent.direction = (max(min(velocity[0], 1.0), -1.0), 0.0, max(min(velocity[2], 1.0), -1.0))
 
         if body1 is not None and body2 is not None and contacts:
-            self.encounter(body1,body2)
+            self.encounter(body1, body2)
 
         for c in contacts:
             c.setBounce(0.3)
@@ -161,13 +161,13 @@ class Simulation:
             j = ode.ContactJoint(self.world, self.contactJoints, c)
             j.attach(body1, body2)
 
-    def encounter(self,body1,body2):
+    def encounter(self, body1, body2):
         if random.random() < 0.9:
             body1.agent.fight(body2.agent)
         else:
             body1.agent.breed(body2.agent)
-    def __str__(self):
 
+    def __str__(self):
         result = ""
 
         for agent in self.agents:
@@ -176,7 +176,6 @@ class Simulation:
         return result + "Total: " + str(len(self.agents)) + " agents in environment\n"
 
     def idle(self):
-
         t = self.dt - (time.time() - self.lasttime)
 
         if (t > 0):
@@ -217,7 +216,6 @@ class Simulation:
         self.lasttime = time.time()
 
     def run(self, draw=True):
-
         self.no_graphics = not draw
         self.lasttime = time.time()
 

@@ -53,11 +53,10 @@ if __name__ == '__main__':
 
     parameters = {
         "func_fight": fight,
-        "maximum_iterations": 1000,
         "indices": INDICES,
         "vertices": VERTICES
     }
 
     sim = Simulation(20, board_size, parameters)
     #sim.run()
-    sim.run(False)
+    sim.run()

@@ -3,13 +3,49 @@ from agent import Agent
 from draw import Draw
 from OpenGL.GLUT import glutPostRedisplay
 
+class Configuration:
 
-class Simulation(object):
+    def fight_function(self,other):
 
+        fit1 = self.fitness()
+        fit2 = other.fitness()
+
+        if fit1 > fit2:
+            self.energy += 100
+            other.energy -= 100
+        elif fit2 > fit1:
+            self.energy -= 100
+            other.energy += 100
+
+    def breed(self, other):
+
+        if self.energy > 400 and other.energy > 400:
+
+            self.energy -= 200
+            other.energy -= 200
+
+            newAgent = Agent(self.sim, self.sim.newAgentNumber, self.shape, True)
+            newAgent.create_parameters(self, other)
+
+            self.sim.agents_to_add.append(newAgent)
+            self.sim.newAgentNumber += 1
+
+class Simulation:
+    """
+    Main class responsible for Simulation
+    """
+
+    #framerate for the simulation
     fps = 50
     dt = 1.0 / fps
 
-    def __init__(self, agents, boardSize, parameters=[]):
+
+    def __init__(self, agents=20, boardSize=12, parameters=[]):
+        """
+        :type boardSize: int - size of the board
+        :type agents: int - number of initial agents
+        :type parameters: dict - all simulation parameters
+        """
 
         self.iter = 0
         self.max_iter = -1
@@ -56,22 +92,31 @@ class Simulation(object):
         self.agents_to_add = []
 
         for i in range(agents):
-            self.agents.append(Agent(self, i, Agent.SHAPE_SPHERE))
+            self.agents.append(Agent(self, i, Agent.SHAPE_BOX))
 
         self.newAgentNumber = agents
 
     def create_world(self):
+        """
+        Creating the world, main parameters and setting gravity.
+        """
         self.world = ode.World()
         self.world.setGravity((0, -9.81, 0))
         self.world.setERP(0.8)
         self.world.setCFM(1E-5)
 
     def create_floor(self):
+        """
+        Creating the floor for the simulation using 3D mesh
+        """
         td = ode.TriMeshData()
         td.build(self.vertices, self.indices)
         self.floor = ode.GeomTriMesh(td, self.space)
 
     def create_environment(self):
+        """
+        Creating the needed environment - floor, walls and Space for collisions
+        """
         self.space = ode.Space()
         self.create_floor()
         self.wall1 = ode.GeomPlane(self.space, (1, 0, 0), -self.boardSize / 2)
@@ -80,6 +125,12 @@ class Simulation(object):
         self.wall4 = ode.GeomPlane(self.space, (0, 0, 1), -self.boardSize / 2)
 
     def near_callback(self, args, geom1, geom2):
+        """
+        Function invoke when detected collisions
+        :type geom2: GeomObject
+        :type geom1: GeomObject
+        :type args: object
+        """
 
         body1, body2 = geom1.getBody(), geom2.getBody()
 
@@ -102,10 +153,7 @@ class Simulation(object):
             body2.agent.direction = (max(min(velocity[0], 1.0), -1.0), 0.0, max(min(velocity[2], 1.0), -1.0))
 
         if body1 is not None and body2 is not None and contacts:
-            if random.random() < 0.9:
-                body1.agent.fight(body2.agent)
-            else:
-                body1.agent.breed(body2.agent)
+            self.encounter(body1,body2)
 
         for c in contacts:
             c.setBounce(0.3)
@@ -113,6 +161,11 @@ class Simulation(object):
             j = ode.ContactJoint(self.world, self.contactJoints, c)
             j.attach(body1, body2)
 
+    def encounter(self,body1,body2):
+        if random.random() < 0.9:
+            body1.agent.fight(body2.agent)
+        else:
+            body1.agent.breed(body2.agent)
     def __str__(self):
 
         result = ""

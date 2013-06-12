@@ -1,6 +1,6 @@
 import ode, random, math
 
-class Agent(object):
+class Agent:
 
     SHAPE_BOX = 1
     SHAPE_SPHERE = 2
@@ -8,6 +8,9 @@ class Agent(object):
 
     def __init__(self, sim, number, shape, breeded=False):
 
+        """
+        Constructor
+        """
         self.sim = sim
         self.number = number
         self.shape = shape
@@ -42,7 +45,7 @@ class Agent(object):
     def get_one(self, value1, value2):
         return value1 if random.random() > 0.5 else value2
 
-    def inherit_sizes(self, agent1, agent2):
+    def create_parameters(self, agent1, agent2):
 
         self.sizes = {}
 
@@ -108,7 +111,7 @@ class Agent(object):
             other.energy -= 200
 
             newAgent = Agent(self.sim, self.sim.newAgentNumber, self.shape, True)
-            newAgent.inherit_sizes(self, other)
+            newAgent.create_parameters(self, other)
 
             self.sim.agents_to_add.append(newAgent)
             self.sim.newAgentNumber += 1

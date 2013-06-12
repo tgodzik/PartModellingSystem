@@ -190,5 +190,5 @@ class Agent:
 
 
     def __str__(self):
-        return "\tAgent " + str(self.number) + " [shape: " + str(self.shape) + ", fitness: " + str(
+        return "\tAgent " + str(self.number) + " [shape: " + str(self.shape.__class__) + ", fitness: " + str(
             self.fitness()) + ", energy: " + str(self.energy) + ", size: " + str(self.shape.sizes) + "]"

@@ -1,18 +1,18 @@
 #!/usr/bin/python
 
 from sim.simulation import Simulation,Configuration
-from sim.agent import Sphere
-def fight(object, other):
+from sim.agent import Sphere,Agent
 
-    fit1 = object.fitness()
-    fit2 = other.fitness()
+class AverageSphere(Sphere):
+    def create_new_size(self, shape1,shape2):
+        self.sizes = {'radius': ( shape1.sizes['radius'] + shape2.sizes['radius'])/2}
+        print self.sizes["radius"]
 
-    if fit1 > fit2:
-        object.energy += 100
-        other.energy -= 100
-    elif fit2 > fit1:
-        object.energy -= 100
-        other.energy += 100
+def breed(self, other):
+    if self.energy > 400 and other.energy > 400:
+        self.energy = 0
+        other.energy = 0
+        newAgent = Agent(self.sim, self.sim.newAgentNumber,self.shape.__class__, self,other)
 
 def fitness(self):
     return self.color[1] - self.color[0] - self.color[2]
@@ -21,8 +21,8 @@ board_size = 20
 
 
 if __name__ == '__main__':
-    configuration=Configuration(20,15.0,Sphere)
-
+    configuration=Configuration(20,15.0,AverageSphere)
+    configuration.function_breed(breed)
     sim = Simulation(configuration)
     #sim.run()
     sim.run()

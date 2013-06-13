@@ -25,4 +25,4 @@ if __name__ == '__main__':
     configuration.function_breed(breed)
     configuration.set_max_iterations(1000)
     sim = Simulation(configuration)
-    sim.run(False)
+    sim.run(True, False)

@@ -164,7 +164,7 @@ class Agent:
         self.body.setRotation([ct, 0.0, -st, 0.0, 1.0, 0.0, st, 0.0, ct])
 
 
-    def move(self):
+    def live(self):
         """
                 Important! - function is responsible for life cycle.
                 """

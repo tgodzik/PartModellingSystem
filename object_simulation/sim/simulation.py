@@ -51,19 +51,19 @@ class Configuration:
             Agent.breed=self.functions["function_breed"]
         if "function_fight" in self.functions:
             Agent.fight=self.functions["function_fight"]
-        if "function_move" in self.functions:
-            Agent.move=self.functions["function_move"]
+        if "function_live" in self.functions:
+            Agent.live=self.functions["function_live"]
         if "function_encounter" in self.functions:
             Simulation.encounter=self.functions["function_encounter"]
         if "function_touch" in self.functions:
             Simulation.touch=self.functions["function_touch"]
 
 
-    def function_move(self, function):
+    def function_live(self, function):
         """
                 Change function in agent responsible for life cycle.
                 """
-        self.functions["function_move"] = function
+        self.functions["function_live"] = function
 
     def function_fight(self, function):
         """
@@ -242,9 +242,8 @@ class Simulation:
         Function responsible for main simulation loop
         """
         t = self.dt - (time.time() - self.lasttime)
-        # czy potrzebne i komentarz do move - live
         # check if we need to do anything, dt
-        if t > 0 and not self.no_graphics:
+        if t > 0 and self.real_time:
             time.sleep(t)
 
         for agent in self.agents_to_add:
@@ -260,7 +259,7 @@ class Simulation:
                 del agent.geom
                 del agent
             else:
-                agent.move()
+                agent.live()
 
         if not self.no_graphics:
             glutPostRedisplay()
@@ -281,11 +280,12 @@ class Simulation:
 
         self.lasttime = time.time()
 
-    def run(self, draw=True):
+    def run(self, draw=True, real_time=True):
         """
         Running the simulation
         """
         self.no_graphics = not draw
+        self.real_time = real_time
         self.lasttime = time.time()
 
         if not self.no_graphics:

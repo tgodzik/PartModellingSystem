@@ -165,6 +165,9 @@ class Agent:
 
 
     def move(self):
+        """
+                Important! - function is responsible for life cycle.
+                """
         self.body.addForce((self.energy * self.direction[0], 0.0, self.energy * self.direction[2]))
 
     def fight(self, other):

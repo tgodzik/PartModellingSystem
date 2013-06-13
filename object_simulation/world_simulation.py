@@ -4,14 +4,14 @@ from sim.simulation import Simulation,Configuration
 from sim.agent import Sphere,Agent
 
 class AverageSphere(Sphere):
-    def create_new_size(self, shape1,shape2):
+    def create_new_sizes(self, shape1,shape2):
         self.sizes = {'radius': ( shape1.sizes['radius'] + shape2.sizes['radius'])/2}
         print self.sizes["radius"]
 
 def breed(self, other):
     if self.energy > 400 and other.energy > 400:
-        self.energy = 0
-        other.energy = 0
+        self.energy -= 400
+        other.energy -= 400
         newAgent = Agent(self.sim, self.sim.newAgentNumber,self.shape.__class__, self,other)
 
 def fitness(self):

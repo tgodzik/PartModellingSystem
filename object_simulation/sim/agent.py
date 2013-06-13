@@ -8,7 +8,7 @@ def pick_one(value1, value2):
 
 
 class Shape:
-    def generate_random_sizes(self):
+    def generate_initial_sizes(self):
         raise NotImplementedError()
 
     def create_mass(self, mass):
@@ -17,7 +17,7 @@ class Shape:
     def create_geom(self, space):
         raise NotImplementedError()
 
-    def create_new_size(self, shape1,shape2):
+    def create_new_sizes(self, shape1,shape2):
         raise NotImplementedError()
 
     def draw_shape(self):
@@ -29,9 +29,9 @@ class Shape:
 
 class Box(Shape):
     def __init__(self):
-        self.generate_random_sizes()
+        self.generate_initial_sizes()
 
-    def generate_random_sizes(self):
+    def generate_initial_sizes(self):
         self.sizes = {'lx': random.uniform(0.2, 1), 'ly': random.uniform(0.2, 1), 'lz': random.uniform(0.2, 1)}
 
     def create_mass(self, mass,density):
@@ -40,7 +40,7 @@ class Box(Shape):
     def create_geom(self, space):
         return ode.GeomBox(space, lengths=(self.sizes['lx'], self.sizes['ly'], self.sizes['lz']))
 
-    def create_new_size(self, shape1,shape2):
+    def create_new_sizes(self, shape1,shape2):
         self.sizes = {'lx': pick_one(shape1.sizes['lx'], shape2.sizes['lx']),
                       'ly': pick_one(shape1.sizes['ly'], shape2.sizes['ly']),
                       'lz': pick_one(shape1.sizes['lz'], shape2.sizes['lz'])}
@@ -57,9 +57,9 @@ class Box(Shape):
 
 class Sphere(Shape):
     def __init__(self):
-        self.generate_random_sizes()
+        self.generate_initial_sizes()
 
-    def generate_random_sizes(self):
+    def generate_initial_sizes(self):
         self.sizes = {'radius': random.uniform(0.2, 0.5)}
 
     def create_mass(self, mass,density):
@@ -68,7 +68,7 @@ class Sphere(Shape):
     def create_geom(self, space):
         return ode.GeomSphere(space, self.sizes['radius'])
 
-    def create_new_size(self, shape1, shape2):
+    def create_new_sizes(self, shape1, shape2):
         self.sizes = {'radius': pick_one(shape1.sizes['radius'], shape2.sizes['radius'])}
 
     def draw_shape(self):
@@ -83,9 +83,9 @@ class Sphere(Shape):
 
 class Cylinder(Shape):
     def __init__(self):
-        self.generate_random_sizes()
+        self.generate_initial_sizes()
 
-    def generate_random_sizes(self):
+    def generate_initial_sizes(self):
         self.sizes = {'radius': random.uniform(0.2, 0.5), 'height': random.uniform(0.2, 0.5)}
 
     def create_mass(self, mass,density):
@@ -94,7 +94,7 @@ class Cylinder(Shape):
     def create_geom(self, space):
         return ode.GeomCylinder(space, self.sizes['radius'], self.sizes['height'])
 
-    def create_new_size(self,shape1 ,shape2):
+    def create_new_sizes(self,shape1 ,shape2):
         self.sizes = {'radius': pick_one(shape1.sizes['radius'], shape2.sizes['radius']),
                       'height': pick_one(shape1.sizes['height'], shape2.sizes['height'])}
 
@@ -130,7 +130,7 @@ class Agent:
             self.energy=random.randint(1000, 1500)
 
         else:
-            self.shape.create_new_size(parent1.shape,parent2.shape)
+            self.shape.create_new_sizes(parent1.shape,parent2.shape)
             self.sim.agents_to_add.append(self)
             self.sim.newAgentNumber += 1
 

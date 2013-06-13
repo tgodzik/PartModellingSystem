@@ -35,10 +35,16 @@ class Configuration:
         self.functions={}
 
 
-    def set_max_iterations(self,iter):
-        self.max_iter=iter
+    def set_max_iterations(self, iter):
+        """
+                Setting up the max number of iteration.
+                """
+        self.max_iter = iter
 
     def setup_simulation(self):
+        """
+        change all needed functions that were specified in configuration
+        """
         if "function_fitness" in self.functions:
             Agent.fitness=self.functions["function_fitness"]
         if "function_breed" in self.functions:
@@ -52,23 +58,42 @@ class Configuration:
         if "function_touch" in self.functions:
             Simulation.touch=self.functions["function_touch"]
 
-    def function_move(self,function):
-        self.functions["function_move"]=function
 
-    def function_fight(self,function):
-        self.functions["function_fight"]=function
+    def function_move(self, function):
+        """
+                Change function in agent responsible for life cycle.
+                """
+        self.functions["function_move"] = function
 
-    def function_breed(self,function):
-        self.functions["function_breed"]=function
+    def function_fight(self, function):
+        """
+                Change function in agent responsible for fighting other agents.
+                """
+        self.functions["function_fight"] = function
 
-    def function_fitness(self,function):
-        self.functions["function_fitness"]=function
+    def function_breed(self, function):
+        """
+                Change function in agent responsible for creating new agent.
+                """
+        self.functions["function_breed"] = function
 
-    def function_touch(self,function):
-        self.functions["function_touch"]=function
+    def function_fitness(self, function):
+        """
+                Change function in agent responsible for checking agent fitness.
+                """
+        self.functions["function_fitness"] = function
 
-    def function_encounter(self,function):
-        self.functions["function_encounter"]=function
+    def function_touch(self, function):
+        """
+                Change function in simulation responsible for contact points in agent.
+                """
+        self.functions["function_touch"] = function
+
+    def function_encounter(self, function):
+        """
+                Change function in simulation responsible for an encounter between agents.
+                """
+        self.functions["function_encounter"] = function
 
 class Simulation:
     """
@@ -110,10 +135,16 @@ class Simulation:
         self.newAgentNumber = configuration.agents
 
     def set_fps(self,new_fps):
+        """
+        Setting frames per second
+        """
         self.fps=new_fps
-        self.dt=1/self.fps
+        self.dt=1.0/self.fps
 
     def set_dt(self,new_dt):
+        """
+        Setting the duration of one iteration
+        """
         self.dt=new_dt
         self.fps=1/self.dt
 
@@ -251,6 +282,9 @@ class Simulation:
         self.lasttime = time.time()
 
     def run(self, draw=True):
+        """
+        Running the simulation
+        """
         self.no_graphics = not draw
         self.lasttime = time.time()
 

@@ -8,10 +8,14 @@ def pick_one(value1, value2):
 
 
 class Shape:
+
+    def __init__(self):
+        self.generate_initial_sizes()
+
     def generate_initial_sizes(self):
         raise NotImplementedError()
 
-    def create_mass(self, mass):
+    def create_mass(self, mass,density):
         raise NotImplementedError()
 
     def create_geom(self, space):

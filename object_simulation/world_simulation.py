@@ -23,6 +23,6 @@ board_size = 20
 if __name__ == '__main__':
     configuration=Configuration(20,15.0,AverageSphere)
     configuration.function_breed(breed)
+    configuration.set_max_iterations(1000)
     sim = Simulation(configuration)
-    #sim.run()
-    sim.run()
+    sim.run(False)

@@ -5,7 +5,7 @@ from OpenGL.GLUT import glutPostRedisplay
 from collections import defaultdict
 
 class Configuration:
-    def __init__(self, agents=20, board_size=12,object_type=Sphere,(vertices,indices)=(None,None)):
+    def __init__(self, agents=20, board_size=12.0,object_type=Sphere,(vertices,indices)=(None,None)):
 
         #setting simple parameters
         self.agents = agents
@@ -113,6 +113,10 @@ class Simulation:
         self.fps=new_fps
         self.dt=1/self.fps
 
+    def set_dt(self,new_dt):
+        self.dt=new_dt
+        self.fps=1/self.dt
+
     def create_world(self):
         """
         Creating the world, main parameters and setting gravity.
@@ -207,9 +211,9 @@ class Simulation:
         Function responsible for main simulation loop
         """
         t = self.dt - (time.time() - self.lasttime)
-
+        # czy potrzebne i komentarz do move - live
         # check if we need to do anything, dt
-        if (t > 0):
+        if t > 0 and not self.no_graphics:
             time.sleep(t)
 
         for agent in self.agents_to_add:

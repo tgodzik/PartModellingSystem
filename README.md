@@ -1,7 +1,7 @@
 PartModellingSystem
 ===================
 
-Simulation for making the best shape for robot parts.
+Simulation for making the best shap. Needs to have first the basic shapes and mutation strategy.
 
 It reguires OpenDynamicsEngine. To install it and python bindings:
 
